@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D5EE5C322FAC183F00D49FCF /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = D5EE5C312FAC183F00D49FCF /* Auth */; };
+		D5EE5C342FAC183F00D49FCF /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = D5EE5C332FAC183F00D49FCF /* Functions */; };
+		D5EE5C362FAC183F00D49FCF /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = D5EE5C352FAC183F00D49FCF /* PostgREST */; };
+		D5EE5C382FAC183F00D49FCF /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = D5EE5C372FAC183F00D49FCF /* Realtime */; };
+		D5EE5C3A2FAC183F00D49FCF /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = D5EE5C392FAC183F00D49FCF /* Storage */; };
+		D5EE5C3C2FAC183F00D49FCF /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = D5EE5C3B2FAC183F00D49FCF /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D5EE5C0C2FAAC8FE00D49FCF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,6 +38,23 @@
 		D5EE5C152FAAC8FE00D49FCF /* activityappUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = activityappUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D5EE5C292FAC12F500D49FCF /* Exceptions for "activityappTests" folder in "activityapp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ContentView.swift,
+			);
+			target = D5EE5BFD2FAAC8FC00D49FCF /* activityapp */;
+		};
+		D5EE5C2A2FAC12F500D49FCF /* Exceptions for "activityappTests" folder in "activityappTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ContentView.swift,
+			);
+			target = D5EE5C0A2FAAC8FE00D49FCF /* activityappTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D5EE5C002FAAC8FC00D49FCF /* activityapp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -37,6 +63,10 @@
 		};
 		D5EE5C0E2FAAC8FE00D49FCF /* activityappTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D5EE5C292FAC12F500D49FCF /* Exceptions for "activityappTests" folder in "activityapp" target */,
+				D5EE5C2A2FAC12F500D49FCF /* Exceptions for "activityappTests" folder in "activityappTests" target */,
+			);
 			path = activityappTests;
 			sourceTree = "<group>";
 		};
@@ -52,6 +82,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5EE5C362FAC183F00D49FCF /* PostgREST in Frameworks */,
+				D5EE5C342FAC183F00D49FCF /* Functions in Frameworks */,
+				D5EE5C3C2FAC183F00D49FCF /* Supabase in Frameworks */,
+				D5EE5C322FAC183F00D49FCF /* Auth in Frameworks */,
+				D5EE5C3A2FAC183F00D49FCF /* Storage in Frameworks */,
+				D5EE5C382FAC183F00D49FCF /* Realtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +114,7 @@
 				D5EE5C002FAAC8FC00D49FCF /* activityapp */,
 				D5EE5C0E2FAAC8FE00D49FCF /* activityappTests */,
 				D5EE5C182FAAC8FE00D49FCF /* activityappUITests */,
+				D5EE5C302FAC183F00D49FCF /* Frameworks */,
 				D5EE5BFF2FAAC8FC00D49FCF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +127,13 @@
 				D5EE5C152FAAC8FE00D49FCF /* activityappUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D5EE5C302FAC183F00D49FCF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +156,12 @@
 			);
 			name = activityapp;
 			packageProductDependencies = (
+				D5EE5C312FAC183F00D49FCF /* Auth */,
+				D5EE5C332FAC183F00D49FCF /* Functions */,
+				D5EE5C352FAC183F00D49FCF /* PostgREST */,
+				D5EE5C372FAC183F00D49FCF /* Realtime */,
+				D5EE5C392FAC183F00D49FCF /* Storage */,
+				D5EE5C3B2FAC183F00D49FCF /* Supabase */,
 			);
 			productName = activityapp;
 			productReference = D5EE5BFE2FAAC8FC00D49FCF /* activityapp.app */;
@@ -592,6 +642,39 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D5EE5C312FAC183F00D49FCF /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5EE5C282FAC105700D49FCF /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		D5EE5C332FAC183F00D49FCF /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5EE5C282FAC105700D49FCF /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		D5EE5C352FAC183F00D49FCF /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5EE5C282FAC105700D49FCF /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		D5EE5C372FAC183F00D49FCF /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5EE5C282FAC105700D49FCF /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		D5EE5C392FAC183F00D49FCF /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5EE5C282FAC105700D49FCF /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		D5EE5C3B2FAC183F00D49FCF /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5EE5C282FAC105700D49FCF /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D5EE5BF62FAAC8FC00D49FCF /* Project object */;
 }
