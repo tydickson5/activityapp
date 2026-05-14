@@ -75,6 +75,11 @@
 			path = activityappUITests;
 			sourceTree = "<group>";
 		};
+		D5EE5C962FAD63A600D49FCF /* Client */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Client;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +116,7 @@
 		D5EE5BF52FAAC8FC00D49FCF = {
 			isa = PBXGroup;
 			children = (
+				D5EE5C962FAD63A600D49FCF /* Client */,
 				D5EE5C002FAAC8FC00D49FCF /* activityapp */,
 				D5EE5C0E2FAAC8FE00D49FCF /* activityappTests */,
 				D5EE5C182FAAC8FE00D49FCF /* activityappUITests */,
@@ -153,6 +159,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				D5EE5C002FAAC8FC00D49FCF /* activityapp */,
+				D5EE5C962FAD63A600D49FCF /* Client */,
 			);
 			name = activityapp;
 			packageProductDependencies = (

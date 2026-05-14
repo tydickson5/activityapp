@@ -6,16 +6,21 @@
 //
 
 import SwiftUI
+import Supabase
 
 struct ContentView: View {
+    
+    @Environment(\.appEnvironment) var env
+    
+    var client: SupabaseClient {
+        SupabaseClient(
+            supabaseURL: URL(string: env.supabaseUrl)!,
+            supabaseKey: env.supabaseAnonKey
+        )
+    }
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!!!")
-        }
-        .padding()
+        LoginView()
     }
 }
 

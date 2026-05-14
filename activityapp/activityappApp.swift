@@ -11,14 +11,14 @@ import Supabase
 @main
 struct activityappApp: App {
     
-    @Environment var supabase = SupabaseClient(
-        supabaseURL: URL(string: "https://YOUR_PROJECT.supabase.co")!,
-        supabaseKey: "YOUR_ANON_KEY"
-    )
+    let environment = AppEnvironment.live
+    
+    @StateObject private var authHandler = AuthHandler()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(authHandler)
         }
     }
 }
