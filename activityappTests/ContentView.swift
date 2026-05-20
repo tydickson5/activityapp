@@ -19,11 +19,23 @@ struct ContentView: View {
         )
     }
     
+    @EnvironmentObject var authHandler: AuthHandler
+    
     var body: some View {
         LoginView()
+        /*
+        if(authHandler.isAuthenticated){
+            HomeView()
+        }
+        else{
+            if(authHandler.isLoading){
+                Text("Loading...")
+            }
+            else{
+                LoginView()
+            }
+        }
+         */
     }
 }
 
-#Preview {
-    ContentView()
-}

@@ -11,6 +11,10 @@ import Supabase
 @main
 struct activityappApp: App {
     
+    @UIApplicationDelegateAdaptor(AppDelegate.self)
+    var appDelegate
+
+    
     let environment = AppEnvironment.live
     
     @StateObject private var authHandler = AuthHandler()
@@ -19,6 +23,7 @@ struct activityappApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(authHandler)
+                .toast()
         }
     }
 }

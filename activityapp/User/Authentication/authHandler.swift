@@ -12,7 +12,7 @@ import Supabase
 @MainActor
 class AuthHandler: ObservableObject {
     
-    @Published var user : User?
+    @Published var user : AppUser?
     @Published var session: Session?
     @Published var isAuthenticated = false
     @Published var isLoading = false
@@ -27,28 +27,37 @@ class AuthHandler: ObservableObject {
     func loadSession() async {
         
         do {
+            self.isLoading = true
             let currentSession = try await SupabaseHandler.client.auth.session
             
             self.session = currentSession
             
-            let token = self.session?.accessToken
-            let data = await getUser(token: token!)
+            let token = currentSession.accessToken
+
+            guard let data = await getUser(token: token) else {
+                self.isAuthenticated = false
+                return
+            }
             
-            self.user = try JSONDecoder().decode(User.self, from: data!)
+            self.user = try JSONDecoder().decode(AppUser.self, from: data)
+
             
-            
+            self.isLoading  = false
             self.isAuthenticated = true
+            
         } catch {
             self.isAuthenticated = false
         }
         
     }
     
+    
+    
     func getUser(token: String) async -> Data? {
         
         do {
             var request = URLRequest(
-                url: URL(string: "http://localhost:3000/users/onboard")!
+                url: URL(string: "http://192.168.10.119:3000/users/onboard")!
             )
 
             request.httpMethod = "GET"
@@ -79,40 +88,64 @@ class AuthHandler: ObservableObject {
 
             let token = session.accessToken
 
-            let data = await getUser(token: token)
+            guard let data = await getUser(token: token) else {
+                return
+            }
 
-            print(String(data: data!, encoding: .utf8)!)
-            self.user = try JSONDecoder().decode(User.self, from: data!)
-            print(self.user!.username)
+            let decodedUser = try JSONDecoder()
+                .decode(AppUser.self, from: data)
+
+            self.user = decodedUser
+            self.session = session
+            self.isAuthenticated = true
+            ToastManager.shared.success("Welcome")
+
+
+        } catch let error as AuthError {
+            
+            self.errorMessage = error.message
+            print(error)
+            ToastManager.shared.error("Invalid Credentials")
 
         } catch {
-            print(error)
+
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.error("Invalid Credentials")
         }
     }
     
     func signUp(email: String, password: String) async {
         do {
-            try await SupabaseHandler.client.auth.signUp(email: email, password: password)
-                
-            let session = try await SupabaseHandler.client.auth.session
-            let token = session.accessToken
-            
-            var request = URLRequest(url: URL(string:"http://localhost:3000/users/onboard")!)
-            request.httpMethod = "POST"
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            request.setValue(
-                "application/json",
-                forHTTPHeaderField: "Content-Type"
+            let authResponse = try await SupabaseHandler.client.auth.signUp(
+                email: email,
+                password: password
             )
 
-            
-            let (data, _) = try await URLSession.shared.data(for: request)
-            print(String(data: data, encoding: .utf8)!)
-        } catch {
+            guard let session = authResponse.session else {
+                ToastManager.shared.error("Signup failed — no session returned")
+                return
+            }
+
+            let token = session.accessToken
+
+            guard let data = await getUser(token: token) else {
+                return
+            }
+
+            self.user = try JSONDecoder().decode(AppUser.self, from: data)
+            self.session = session
+            self.isAuthenticated = true
+
+            ToastManager.shared.success("Account created")
+
+        } catch let error as AuthError {
+            self.errorMessage = error.message
             print(error)
+            ToastManager.shared.error(error.message)
+        } catch {
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.error("Signup failed")
         }
     }
-
-    
 }
 
