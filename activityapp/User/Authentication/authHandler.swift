@@ -51,13 +51,16 @@ class AuthHandler: ObservableObject {
         
     }
     
-    
+    func logout() {
+        self.isAuthenticated = false
+        self.isLoading = false
+    }
     
     func getUser(token: String) async -> Data? {
         
         do {
             var request = URLRequest(
-                url: URL(string: "http://192.168.10.119:3000/users/onboard")!
+                url: URL(string: "http://\(SupabaseHandler.ipAddress):3000/users/onboard")!
             )
 
             request.httpMethod = "GET"

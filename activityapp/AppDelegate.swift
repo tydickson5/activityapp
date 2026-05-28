@@ -46,7 +46,7 @@ class AppDelegate: NSObject,
         print("APNs Token:", token)
 
         guard let url = URL(
-            string: "http://192.168.10.119:3000/device-token"
+            string: "http://192.168.4.86:3000/device-token"
         ) else {
             return
         }

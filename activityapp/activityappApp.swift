@@ -18,11 +18,13 @@ struct activityappApp: App {
     let environment = AppEnvironment.live
     
     @StateObject private var authHandler = AuthHandler()
+    @StateObject private var groupHandler = GroupsHandler()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(authHandler)
+                .environmentObject(groupHandler)
                 .toast()
         }
     }

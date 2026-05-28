@@ -14,4 +14,6 @@ enum SupabaseHandler
         supabaseURL: URL(string: "https://vdxqfhrsuhmqdbpeqtbt.supabase.co")!,
         supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkeHFmaHJzdWhtcWRicGVxdGJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMzcwMzMsImV4cCI6MjA5MzYxMzAzM30.6My-s4mropLOelDfcl2KSQAX2gQI2QP0y4Db0pcLICg"
     )
+    
+    static let ipAddress: String =  "192.168.4.43"
 }

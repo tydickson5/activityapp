@@ -20,22 +20,39 @@ struct ContentView: View {
     }
     
     @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var groupHandler: GroupsHandler
+
     
     var body: some View {
-        LoginView()
-        /*
+        
+        
         if(authHandler.isAuthenticated){
-            HomeView()
+            TabView{
+                HomeView().id(1)
+                    .tabItem { Label("Your List", systemImage: "house.fill") }
+                    .onAppear{
+                        Task{
+                            await groupHandler.loadGroups(userId: authHandler.user!.id)
+                        }
+                    }
+                GroupView()
+                    .tabItem { Label("Groups",
+                        systemImage: "person.2.fill")}
+                    .environmentObject(groupHandler)
+            }
+            .tint(Color.dark)
         }
         else{
             if(authHandler.isLoading){
                 Text("Loading...")
+                Button("Back"){
+                    authHandler.logout()
+                }
             }
             else{
                 LoginView()
             }
         }
-         */
+         
     }
 }
-
