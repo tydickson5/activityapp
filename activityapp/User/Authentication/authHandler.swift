@@ -60,7 +60,7 @@ class AuthHandler: ObservableObject {
         
         do {
             var request = URLRequest(
-                url: URL(string: "http://\(SupabaseHandler.ipAddress):3000/users/onboard")!
+                url: URL(string: "\(SupabaseHandler.productionBackendURL)/users/onboard")!
             )
 
             request.httpMethod = "GET"

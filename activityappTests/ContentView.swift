@@ -21,7 +21,8 @@ struct ContentView: View {
     
     @EnvironmentObject var authHandler: AuthHandler
     @EnvironmentObject var groupHandler: GroupsHandler
-
+    @EnvironmentObject var postHandler: PostsHandler
+    @EnvironmentObject var locationHandler: LocationHandler
     
     var body: some View {
         
@@ -35,10 +36,17 @@ struct ContentView: View {
                             await groupHandler.loadGroups(userId: authHandler.user!.id)
                         }
                     }
+                    .environmentObject(groupHandler)
                 GroupView()
                     .tabItem { Label("Groups",
                         systemImage: "person.2.fill")}
                     .environmentObject(groupHandler)
+                PostView()
+                    .tabItem { Label("Posts",
+                        systemImage: "plus")}
+                    .environmentObject(groupHandler)
+                    .environmentObject(postHandler)
+                    .environmentObject(locationHandler)
             }
             .tint(Color.dark)
         }

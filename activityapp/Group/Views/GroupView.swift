@@ -39,6 +39,13 @@ struct GroupView: View{
             }){
                 Text("Join")
             }
+            Button(action:{
+                Task{
+                    authHandler.logout()
+                }
+            }){
+                Text("Logout")
+            }
         }
         
     }

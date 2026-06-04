@@ -17,5 +17,9 @@
         <key>NSAllowsArbitraryLoads</key>
         <true/>
     </dict>
+    <key>NSCameraUsageDescription</key>
+    <string>We use your camera to create posts.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Attach your location to posts.</string>
 </dict>
 </plist>

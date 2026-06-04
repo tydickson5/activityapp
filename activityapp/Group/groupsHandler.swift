@@ -8,8 +8,11 @@ import Supabase
 final class GroupsHandler: ObservableObject {
     
     @Published var groups: [Group] = []
+    @Published var selectedGroup: String? = "70f2584b-8e91-4e3c-bf13-f915c098876b"
     
     private var memberships: [GroupMember] = []
+    
+    @Published var postHandler: PostsHandler = PostsHandler()
         
     func loadGroups(userId: String) async {
         //original fetch
@@ -57,7 +60,7 @@ final class GroupsHandler: ObservableObject {
     
     func createGroup(userId: String, name: String) async{
         do {
-            var request = URLRequest(url: URL(string: "http://\(SupabaseHandler.ipAddress):3000/groups/create")!)
+            var request = URLRequest(url: URL(string: "\(SupabaseHandler.productionBackendURL)/groups/create")!)
             
             
             
@@ -117,7 +120,7 @@ final class GroupsHandler: ObservableObject {
     
     func joinGroup(userId: String, groupId: String) async{
         do {
-            var request = URLRequest(url: URL(string: "http://\(SupabaseHandler.ipAddress):3000/groups/join")!)
+            var request = URLRequest(url: URL(string: "\(SupabaseHandler.productionBackendURL)/groups/join")!)
             
             request.httpMethod = "POST"
             

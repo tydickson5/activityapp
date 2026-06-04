@@ -19,12 +19,16 @@ struct activityappApp: App {
     
     @StateObject private var authHandler = AuthHandler()
     @StateObject private var groupHandler = GroupsHandler()
+    @StateObject private var postHandler = PostsHandler()
+    @StateObject private var locationHandler = LocationHandler()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(authHandler)
                 .environmentObject(groupHandler)
+                .environmentObject(postHandler)
+                .environmentObject(locationHandler)
                 .toast()
         }
     }
