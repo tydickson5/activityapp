@@ -253,7 +253,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D5EE5BF92FAAC8FC00D49FCF /* Build configuration list for PBXProject "activityapp" */;
+			buildConfigurationList = D5EE5BF92FAAC8FC00D49FCF /* Build configuration list for PBXProject "caravyn" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -625,7 +625,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D5EE5BF92FAAC8FC00D49FCF /* Build configuration list for PBXProject "activityapp" */ = {
+		D5EE5BF92FAAC8FC00D49FCF /* Build configuration list for PBXProject "caravyn" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D5EE5C1D2FAAC8FE00D49FCF /* Debug */,

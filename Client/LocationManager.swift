@@ -23,7 +23,12 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        location = locations.last
-        manager.stopUpdatingLocation() // remove this if you want continuous updates
+        guard let latest = locations.last, latest.horizontalAccuracy < 100 else { return }
+        location = latest
+        manager.stopUpdatingLocation()
+    }
+    
+    func recenter() {
+        manager.startUpdatingLocation()
     }
 }

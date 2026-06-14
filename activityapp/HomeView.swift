@@ -19,11 +19,6 @@ struct HomeView: View {
         self.postHandler = postHandler
     }
     
-    @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
-        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-    )
-    
     @State private var position: MapCameraPosition = .automatic
     @State private var zoomLevel: Double = 112.60658752186015
     
@@ -59,10 +54,10 @@ struct HomeView: View {
                 }
                 .onReceive(locationManager.$location) { location in
                     guard let location else { return }
-                    region = MKCoordinateRegion(
+                    position = .region(MKCoordinateRegion(
                         center: location.coordinate,
                         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-                    )
+                    ))
                 }
                 .ignoresSafeArea()
                 .overlay(alignment: .topTrailing){
@@ -102,6 +97,16 @@ struct HomeView: View {
                             }
                         }){
                             Image(systemName: "arrow.clockwise")
+                                .frame(width: 15, height: 15)
+                                .foregroundStyle(Color.white)
+                                .padding()
+                                .background(Color.dark.opacity(0.9))
+                                .clipShape(Circle())
+                        }
+                        Button(action:{
+                            locationManager.recenter()
+                        }){
+                            Image(systemName: "location")
                                 .frame(width: 15, height: 15)
                                 .foregroundStyle(Color.white)
                                 .padding()

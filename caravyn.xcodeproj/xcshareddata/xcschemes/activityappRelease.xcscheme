@@ -18,7 +18,7 @@
                BlueprintIdentifier = "D5EE5BFD2FAAC8FC00D49FCF"
                BuildableName = "activityapp.app"
                BlueprintName = "activityapp"
-               ReferencedContainer = "container:activityapp.xcodeproj">
+               ReferencedContainer = "container:caravyn.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,30 +29,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
-      <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D5EE5C0A2FAAC8FE00D49FCF"
-               BuildableName = "activityappTests.xctest"
-               BlueprintName = "activityappTests"
-               ReferencedContainer = "container:activityapp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D5EE5C142FAAC8FE00D49FCF"
-               BuildableName = "activityappUITests.xctest"
-               BlueprintName = "activityappUITests"
-               ReferencedContainer = "container:activityapp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -71,7 +47,7 @@
             BlueprintIdentifier = "D5EE5BFD2FAAC8FC00D49FCF"
             BuildableName = "activityapp.app"
             BlueprintName = "activityapp"
-            ReferencedContainer = "container:activityapp.xcodeproj">
+            ReferencedContainer = "container:caravyn.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -88,7 +64,7 @@
             BlueprintIdentifier = "D5EE5BFD2FAAC8FC00D49FCF"
             BuildableName = "activityapp.app"
             BlueprintName = "activityapp"
-            ReferencedContainer = "container:activityapp.xcodeproj">
+            ReferencedContainer = "container:caravyn.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
