@@ -68,7 +68,3 @@ struct LoginView: View{
     }
 }
 
-
-#Preview {
-    LoginView().environmentObject(AuthHandler()).toast()
-}

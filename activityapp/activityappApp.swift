@@ -11,8 +11,7 @@ import Supabase
 @main
 struct activityappApp: App {
     
-    @UIApplicationDelegateAdaptor(AppDelegate.self)
-    var appDelegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     
     let environment = AppEnvironment.live
@@ -29,7 +28,32 @@ struct activityappApp: App {
                 .environmentObject(groupHandler)
                 .environmentObject(postHandler)
                 .environmentObject(locationHandler)
+                .task {
+                    await authHandler.loadSession()
+                }
                 .toast()
+                .onAppear {
+                    appDelegate.authHandler = authHandler
+                    authHandler.appDelegate = appDelegate
+                }
+                .onOpenURL{ url in
+                    if(authHandler.isAuthenticated){
+                        
+                        Task{
+                            let parts = url.pathComponents
+
+                            guard parts.count >= 3 else { return }
+                            guard parts[1] == "group" else { return }
+
+                            let groupId = parts[2]
+                            
+                            await groupHandler.joinGroup(userId: authHandler.user!.id, groupId: groupId)
+                        }
+                        
+                    } else{
+                        ToastManager.shared.error("You are not logged in")
+                    }
+                }
         }
     }
 }

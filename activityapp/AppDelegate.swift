@@ -12,25 +12,30 @@ class AppDelegate: NSObject,
                    UIApplicationDelegate,
                    UNUserNotificationCenterDelegate {
 
+    private(set) var deviceToken: String?
+    
+    weak var authHandler: AuthHandler? {
+        didSet {
+            if let userId = authHandler?.user?.id, deviceToken != nil {
+                uploadToken(userId: userId)
+            }
+        }
+    }
+    
+    weak var groupHandler: GroupsHandler?
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions:
-        [UIApplication.LaunchOptionsKey : Any]? = nil
+        [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-
         UNUserNotificationCenter.current().delegate = self
-
         UNUserNotificationCenter.current()
-            .requestAuthorization(
-                options: [.alert, .badge, .sound]
-            ) { granted, error in
-
+            .requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in
                 DispatchQueue.main.async {
-                    UIApplication.shared
-                        .registerForRemoteNotifications()
+                    UIApplication.shared.registerForRemoteNotifications()
                 }
             }
-
         return true
     }
 
@@ -38,46 +43,42 @@ class AppDelegate: NSObject,
         _ application: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
-
-        let token = deviceToken.map {
+        self.deviceToken = deviceToken.map {
             String(format: "%02.2hhx", $0)
         }.joined()
+        print("APNs Token:", self.deviceToken!)
 
-        print("APNs Token:", token)
+        if let userId = authHandler?.user?.id {
+            uploadToken(userId: userId)
+        } else {
+            print("Token stored, waiting for login")
+        }
+    }
 
-        guard let url = URL(
-            string: "http://192.168.4.86:3000/device-token"
-        ) else {
+    func uploadToken(userId: String) {
+        guard let token = deviceToken else {
+            print("No device token yet")
+            return
+        }
+
+        guard let url = URL(string: "\(SupabaseHandler.backendURL)/device-token") else {
             return
         }
 
         var request = URLRequest(url: url)
-
         request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        request.addValue(
-            "application/json",
-            forHTTPHeaderField: "Content-Type"
-        )
-
-        let body: [String: Any] = [
-            "userId": "11911829-4c12-4b17-83e3-4563749b4cd4",
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "userId": userId,
             "deviceToken": token
-        ]
+        ])
 
-        request.httpBody = try? JSONSerialization
-            .data(withJSONObject: body)
-
-        URLSession.shared.dataTask(with: request) {
-            data,
-            response,
-            error in
-
+        URLSession.shared.dataTask(with: request) { _, _, error in
             if let error = error {
                 print("Token upload failed:", error)
                 return
             }
-
             print("Token uploaded successfully")
         }.resume()
     }
@@ -89,39 +90,51 @@ class AppDelegate: NSObject,
         print(error)
     }
 
-    // foreground notifications
-
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
-        withCompletionHandler completionHandler:
-        @escaping (UNNotificationPresentationOptions) -> Void
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         completionHandler([.banner, .sound, .badge])
     }
 
-    // silent delete pushes
-
     func application(
         _ application: UIApplication,
-        didReceiveRemoteNotification userInfo:
-        [AnyHashable : Any],
-        fetchCompletionHandler completionHandler:
-        @escaping (UIBackgroundFetchResult) -> Void
+        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
     ) {
-
         print("Silent push received:", userInfo)
 
         if let type = userInfo["type"] as? String,
            type == "notification_deleted",
            let notificationId = userInfo["notificationId"] as? String {
-
             UNUserNotificationCenter.current()
-                .removeDeliveredNotifications(
-                    withIdentifiers: [notificationId]
-                )
+                .removeDeliveredNotifications(withIdentifiers: [notificationId])
         }
 
         completionHandler(.newData)
     }
+    
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let userInfo = response.notification.request.content.userInfo
+        print("Notification tapped:", userInfo)
+
+        if let postId = userInfo["postId"] as? String {
+            NotificationCenter.default.post(
+                name: .notificationTapped,
+                object: nil,
+                userInfo: ["postId": postId]
+            )
+        }
+
+        completionHandler()
+    }
+}
+
+extension Notification.Name {
+    static let notificationTapped = Notification.Name("notificationTapped")
 }

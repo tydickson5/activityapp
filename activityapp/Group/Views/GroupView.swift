@@ -13,41 +13,90 @@ struct GroupView: View{
     
     @State var groupName: String = ""
     
-    @State var groupid: String = "70f2584b-8e91-4e3c-bf13-f915c098876b"
+
+    @State private var isExpanded = false
     
     
     var body: some View {
-        VStack{
-            Text("groups")
-            ForEach(groupHandler.groups) { group in
-                Text(group.name)
-            }
-            
-            TextField("name", text: $groupName)
-            Button(action:{
-                Task{
-                    await groupHandler.createGroup(userId: authHandler.user!.id, name: groupName)
+        ScrollView{
+            VStack{
+                DisclosureGroup("Select Group", isExpanded: $isExpanded){
+                    VStack{
+                        ForEach(groupHandler.groups){ group in
+                            HStack{
+                                Text(group.name)
+                                Spacer()
+                                if(groupHandler.selectedGroup == group.id){
+                                    Image(systemName: "checkmark").foregroundColor(Color.dark)
+                                }
+                            }
+                            .padding()
+                            .onTapGesture {
+                                groupHandler.selectedGroup = group.id
+                                Task{
+                                    await groupHandler.updatedSelectedGroup(userId: authHandler.user!.id, groupId: group.id)
+                                    authHandler.user?.selected_group = group.id
+                                }
+                            }
+                        }
+                    }
                 }
+                .padding()
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(8)
+                .padding(.bottom,20)
+                Text("-")
+                Text("Create Group")
                 
-            }){
-                Text("Create")
-            }
-            Button(action:{
-                Task{
-                    await groupHandler.joinGroup(userId: authHandler.user!.id, groupId: groupid)
+                TextField("Name", text: $groupName)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.dark.opacity(0.5), lineWidth: 2)
+                    )
+                Button(action:{
+                    Task{
+                        await groupHandler.createGroup(userId: authHandler.user!.id, name: groupName)
+                    }
+                    
+                }){
+                    Text("Create")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 20)
+                        .tint(.white)
                 }
-            }){
-                Text("Join")
-            }
-            Button(action:{
-                Task{
-                    authHandler.logout()
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.lightBlue)
+                        .stroke(Color.lightBlue.opacity(0.5), lineWidth: 2)
+                )
+
+                Button(action:{
+                    Task{
+                        authHandler.logout()
+                    }
+                }){
+                    Text("Logout of Account")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 20)
+                        .tint(.white)
                 }
-            }){
-                Text("Logout")
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.red)
+                        .stroke(Color.red.opacity(0.5), lineWidth: 2)
+                )
             }
+            .padding()
+        }
+        .refreshable {
+            await groupHandler.loadGroups(user: authHandler.user!)
         }
         
+        
     }
+        
     
 }

@@ -8,7 +8,11 @@
 	</array>
     <key>NSLocalNetworkUsageDescription</key>
     <string>This app needs local network access to connect to the development server.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>activityapp uses your camera to record videos for posts</string>
 
+    <key>NSMicrophoneUsageDescription</key>
+    <string>activityapp uses your microphone to record audio with videos</string>
     <key>NSAppTransportSecurity</key>
     <dict>
         <key>NSAllowsLocalNetworking</key>

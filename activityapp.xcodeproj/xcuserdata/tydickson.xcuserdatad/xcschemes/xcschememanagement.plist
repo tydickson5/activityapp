@@ -9,6 +9,29 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>activityappRelease.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>D5EE5BFD2FAAC8FC00D49FCF</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D5EE5C0A2FAAC8FE00D49FCF</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D5EE5C142FAAC8FE00D49FCF</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 	</dict>
 </dict>
 </plist>

@@ -15,65 +15,165 @@ struct PostView: View{
     @EnvironmentObject var locationHandler: LocationHandler
     
     @State private var image: UIImage?
-    
-    @State private var caption: String = ""
-    
     @State private var showCamera = false
     
+    @State private var video: URL?
+    @State private var showVideo = false
+    @State private var thumbnail: UIImage?
+    
+    @State private var caption: String = ""
+    @State private var isImage: Bool = true
+    
     var body: some View{
-
-        VStack{
-            if let image {
+        
+        ZStack{
+            VStack{
                 
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(
-                        height: 250
+                if let image {
+                    
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(
+                            height: 400
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 25))
+                }
+                if let thumbnail {
+                    Text("Video Thumbnail")
+                    Image(uiImage: thumbnail)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(
+                            height: 400
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 25))
+                }
+                Spacer()
+                
+                TextField("caption", text: $caption)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.dark.opacity(0.5), lineWidth: 2)
                     )
-                    .clipShape(RoundedRectangle(cornerRadius: 25))
-            }
-            
-            TextField("caption", text: $caption)
-            
-            Button("Take Photo"){
-                showCamera = true
-            }
-                    
-            Button("Upload"){
-                Task{
-                    
-                    guard let image else {
-                        return
+                HStack{
+                    Button(action:{
+                        
+                        Task{
+                            showCamera = true
+                        }
+                        isImage = true
+                        video = nil
+                    }){
+                        Text("Take Picture")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 20)
+                            .tint(.white)
+                        
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.lightBlue)
+                            .stroke(Color.lightBlue.opacity(0.5), lineWidth: 2)
+                    )
+                    Button(action:{
+                        
+                        Task{
+                            showVideo = true
+                        }
+                        isImage = false
+                        image = nil
+                    }){
+                        Text("Take Video")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 20)
+                            .tint(.white)
+                        
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.lightBlue)
+                            .stroke(Color.lightBlue.opacity(0.5), lineWidth: 2)
+                    )
+                    .onChange(of:video){ url in
+                        guard let url else {
+                            return
+                        }
+                        thumbnail = groupHandler.postHandler.generateThumbnail(from: url)
+                        isImage = false
                     }
                     
-                    guard groupHandler
-                        .selectedGroup != nil
-                    else {
-                        return
-                    }
-                    
-                    
-                    
-                    
-                    await groupHandler.postHandler.createPost(imageURL: image, userId: authHandler.user!.id, groupId: "70f2584b-8e91-4e3c-bf13-f915c098876b", caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude)
-                    
-                    await groupHandler.postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
                 }
                 
+                        
+                Button(action:{
+                    Task{
+                    
+                        
+                        guard groupHandler
+                            .selectedGroup != nil
+                        else {
+                            return
+                        }
+                        
+                        if isImage{
+                            await groupHandler.postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude)
+                        } else {
+                            print("vid")
+                            await groupHandler.postHandler.createVideoPost(videoURL: video!, thumbnailURL: thumbnail!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude)
+                        }
+                        
+                        
+                        
+                        
+                        caption = ""
+                        self.image = nil
+                        
+                        await groupHandler.postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
+                    }
+                    
+                    
+                }){
+                    Text("Upload")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 20)
+                        .tint(.white)
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.dark)
+                        .stroke(Color.dark.opacity(0.5), lineWidth: 2)
+                )
+            }
+            .padding()
+            
+            .sheet(
+                isPresented:
+                    $showCamera
+            ) {
+
+                CameraView(
+                    image: $image
+                )
+            }
+            .fullScreenCover(isPresented: $showVideo){
                 
+                VideoView(recordedVideoUrl: $video)
+            }
+            if(groupHandler.postHandler.isLoading){
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+
+                ProgressView()
+                    .scaleEffect(1.5)
             }
         }
-        .padding()
-        .sheet(
-            isPresented:
-                $showCamera
-        ) {
 
-            CameraView(
-                image: $image
-            )
-        }
+        
                 
         
             

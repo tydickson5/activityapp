@@ -18,12 +18,15 @@ class AuthHandler: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
-    init(){
-        Task{
-            await loadSession()
+    weak var appDelegate: AppDelegate? {
+        didSet {
+            if isAuthenticated, let userId = user?.id {
+                appDelegate?.uploadToken(userId: userId)
+            }
         }
     }
     
+
     func loadSession() async {
         
         do {
@@ -36,6 +39,7 @@ class AuthHandler: ObservableObject {
 
             guard let data = await getUser(token: token) else {
                 self.isAuthenticated = false
+                self.isLoading = false
                 return
             }
             
@@ -44,6 +48,10 @@ class AuthHandler: ObservableObject {
             
             self.isLoading  = false
             self.isAuthenticated = true
+
+            if let userId = user?.id {
+                appDelegate?.uploadToken(userId: userId)
+            }
             
         } catch {
             self.isAuthenticated = false
@@ -60,7 +68,7 @@ class AuthHandler: ObservableObject {
         
         do {
             var request = URLRequest(
-                url: URL(string: "\(SupabaseHandler.productionBackendURL)/users/onboard")!
+                url: URL(string: "\(SupabaseHandler.backendURL)/users/onboard")!
             )
 
             request.httpMethod = "GET"
@@ -102,6 +110,9 @@ class AuthHandler: ObservableObject {
             self.session = session
             self.isAuthenticated = true
             ToastManager.shared.success("Welcome")
+            
+            appDelegate?.uploadToken(userId: decodedUser.id)
+
 
 
         } catch let error as AuthError {
@@ -137,9 +148,16 @@ class AuthHandler: ObservableObject {
 
             self.user = try JSONDecoder().decode(AppUser.self, from: data)
             self.session = session
+            
+            
+            
             self.isAuthenticated = true
 
             ToastManager.shared.success("Account created")
+            
+            if let userId = user?.id {
+                appDelegate?.uploadToken(userId: userId)
+            }
 
         } catch let error as AuthError {
             self.errorMessage = error.message

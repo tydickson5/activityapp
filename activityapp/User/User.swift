@@ -9,4 +9,5 @@ struct AppUser: Codable {
     var id: String
     var username: String
     var created_at: String
+    var selected_group: String
 }

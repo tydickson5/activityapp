@@ -9,12 +9,14 @@ import Foundation
 internal import Combine
 import UIKit
 import Supabase
+import AVFoundation
 
 @MainActor
 final class PostsHandler: ObservableObject {
     
     @Published var posts: [Post] = []
     
+    @Published var isLoading: Bool = false
     
     func getPosts(userId: String, groupId: String) async{
         
@@ -50,12 +52,25 @@ final class PostsHandler: ObservableObject {
         }
     }
     
-    func getPost(){
-        
+    func getPost(postId: String) async -> Post? {
+        do {
+            let posts: [Post] = try await SupabaseHandler.client
+                .from("posts")
+                .select()
+                .eq("id", value: postId)
+                .limit(1)
+                .execute()
+                .value
+            
+            return posts.first
+        } catch {
+            print("getPost error:", error)
+            return nil
+        }
     }
     
-    func createPost(imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double) async{
-        
+    func createImagePost(imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double) async{
+        isLoading = true
         do {
             
             let postId =
@@ -64,7 +79,7 @@ final class PostsHandler: ObservableObject {
             
             let filepath = try await uploadImage(image: imageURL, userId: userId, postId: postId)
             
-            var request = URLRequest(url: URL(string: "\(SupabaseHandler.productionBackendURL)/posts/create")!)
+            var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/posts/create")!)
             
             request.httpMethod = "POST"
             
@@ -76,6 +91,7 @@ final class PostsHandler: ObservableObject {
                 
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 
+
                 let body: [String: Any] = [
                     "postId": postId,
                     "userId": userId,
@@ -83,6 +99,7 @@ final class PostsHandler: ObservableObject {
                     "caption": caption,
                     "mediaUrl": filepath,
                     "mediaType": "image",
+                    "videoUrl": "",
                     "latitude": latitude,
                     "longitude": longitude,
                 ]
@@ -91,26 +108,101 @@ final class PostsHandler: ObservableObject {
                 
 
                 do {
-                    let (data, response) = try await URLSession.shared.data(for: request)
+                    let (data, _) = try await URLSession.shared.data(for: request)
                     
-                    print(String(
-                        data: data,
-                        encoding: .utf8
-                    ) ?? "")
+
+                    
+                    
+                    
+                    ToastManager.shared.success("Posted!")
                     
                     
                     
                     
                 } catch {
                     print(error)
+                    ToastManager.shared.error("Error")
                 }
                 
-                
+                isLoading = false
                 
             }
             
         } catch {
             print(error)
+            ToastManager.shared.error("Error")
+            isLoading = false
+        }
+        
+    }
+    
+    func createVideoPost(videoURL: URL, thumbnailURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double) async{
+        print("posting vid")
+        isLoading = true
+        do {
+            
+            
+            
+            let postId =
+                UUID()
+                .uuidString
+            
+            let filepath = try await uploadImage(image: thumbnailURL, userId: userId, postId: postId)
+            let filepathVideo = try await uploadVideo(videoURL: videoURL, userId: userId, postId: postId)
+            
+            var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/posts/create")!)
+            
+            request.httpMethod = "POST"
+            
+            do {
+                
+                var token = try await SupabaseHandler.client.auth.session.accessToken
+                
+                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+                
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                
+
+                let body: [String: Any] = [
+                    "postId": postId,
+                    "userId": userId,
+                    "groupId": groupId,
+                    "caption": caption,
+                    "mediaUrl": filepath,
+                    "mediaType": "video",
+                    "videoUrl": filepathVideo,
+                    "latitude": latitude,
+                    "longitude": longitude,
+                ]
+                
+                request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+                
+
+                do {
+                    let (data, _) = try await URLSession.shared.data(for: request)
+                    
+
+                    
+                    
+                    
+                    ToastManager.shared.success("Posted!")
+                    
+                    
+                    
+                    
+                } catch {
+                    print(error)
+                    ToastManager.shared.error("Error")
+                }
+                
+                isLoading = false
+                
+            }
+            
+        } catch {
+            print(error)
+            ToastManager.shared.error("Error")
+            isLoading = false
         }
         
     }
@@ -141,6 +233,54 @@ final class PostsHandler: ObservableObject {
             )
         
         return path
+    }
+    
+    func uploadVideo(videoURL: URL, userId: String, postId: String) async throws -> String {
+        
+        let data = try Data(contentsOf: videoURL)
+        
+        let path = "\(userId)/\(postId)/\(UUID().uuidString)video.mov"
+        
+        try await SupabaseHandler.client
+            .storage
+            .from("post-media")
+            .upload(
+                path,
+                data: data,
+                options: FileOptions(contentType: "video/quicktime")
+            )
+        
+        return path
+    }
+    
+    func generateThumbnail(from videoURL: URL) -> UIImage? {
+        let asset = AVURLAsset(url: videoURL)
+        let imageGenerator = AVAssetImageGenerator(asset: asset)
+        imageGenerator.appliesPreferredTrackTransform = true
+        
+        
+        guard let cgImage = try? imageGenerator.copyCGImage(at: CMTime(seconds: 0, preferredTimescale: 1), actualTime: nil) else {
+            return nil
+        }
+        
+        return UIImage(cgImage: cgImage)
+    }
+    
+    func getVideoUpload(postId: String) async -> String? {
+        do {
+            let uploads: [Upload] = try await SupabaseHandler.client
+                .from("uploads")
+                .select()
+                .eq("post_id", value: postId)
+                .execute()
+                .value
+            
+            return uploads.first?.file_url
+            
+        } catch {
+            print(error)
+            return nil
+        }
     }
     
 }

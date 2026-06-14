@@ -8,18 +8,25 @@ import Supabase
 final class GroupsHandler: ObservableObject {
     
     @Published var groups: [Group] = []
-    @Published var selectedGroup: String? = "70f2584b-8e91-4e3c-bf13-f915c098876b"
+    @Published var selectedGroup: String? = "6ce9c8f8-2ff2-4f12-8f74-19671fcfb265"
     
     private var memberships: [GroupMember] = []
     
     @Published var postHandler: PostsHandler = PostsHandler()
         
-    func loadGroups(userId: String) async {
+    func loadGroups(user: AppUser) async {
         //original fetch
-        await fetchMemberships(userId: userId)
-        await fetchGroups(userId: userId)
+        await fetchMemberships(userId: user.id)
+        await fetchGroups(userId: user.id)
         
-        print(groups)
+        if(groups.isEmpty){
+            await joinGroup(userId: user.id, groupId: "6ce9c8f8-2ff2-4f12-8f74-19671fcfb265")
+        }
+        
+        selectedGroup = user.selected_group
+
+        
+        await postHandler.getPosts(userId: user.id, groupId: selectedGroup!)
         
     }
     
@@ -58,9 +65,25 @@ final class GroupsHandler: ObservableObject {
         }
     }
     
+    func updatedSelectedGroup(userId: String, groupId: String) async{
+        do{
+            print(userId)
+            print(groupId)
+            _ = try await SupabaseHandler.client
+                .from("profiles").update(["selected_group": groupId])
+                .eq("id", value: userId)
+                .execute()
+            
+            
+            
+        } catch {
+            print(error)
+        }
+    }
+    
     func createGroup(userId: String, name: String) async{
         do {
-            var request = URLRequest(url: URL(string: "\(SupabaseHandler.productionBackendURL)/groups/create")!)
+            var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/groups/create")!)
             
             
             
@@ -120,7 +143,7 @@ final class GroupsHandler: ObservableObject {
     
     func joinGroup(userId: String, groupId: String) async{
         do {
-            var request = URLRequest(url: URL(string: "\(SupabaseHandler.productionBackendURL)/groups/join")!)
+            var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/groups/join")!)
             
             request.httpMethod = "POST"
             
