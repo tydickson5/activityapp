@@ -11,6 +11,8 @@ struct LoginView: View{
     @State var email = ""
     @State var password = ""
     
+    @State var showForgotPassword = false
+    
     @EnvironmentObject var authHandler: AuthHandler
     
     var body: some View {
@@ -61,6 +63,15 @@ struct LoginView: View{
                 .onTapGesture {
                     authHandler.errorMessage = ""
                 }
+                .padding(.bottom, 5)
+                Button("Forgot Password?") {
+                    showForgotPassword = true
+                }
+                .sheet(isPresented: $showForgotPassword) {
+                    ForgotPasswordView()
+                        .environmentObject(authHandler)
+                }
+                .tint(.lightBlue)
             }
         }
         .padding()

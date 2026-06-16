@@ -168,5 +168,29 @@ class AuthHandler: ObservableObject {
             ToastManager.shared.error("Signup failed")
         }
     }
+    
+    func sendPasswordReset(email: String) async {
+        do {
+            try await SupabaseHandler.client.auth.resetPasswordForEmail(
+                email,
+                redirectTo: URL(string: "caravyn://reset-password")
+            )
+
+            ToastManager.shared.success("Check your email for a reset link")
+        } catch {
+            ToastManager.shared.error("Failed to send reset email")
+            print(error)
+        }
+    }
+
+    func updatePassword(newPassword: String) async {
+        do {
+            try await SupabaseHandler.client.auth.update(user: UserAttributes(password: newPassword))
+            ToastManager.shared.success("Password updated")
+        } catch {
+            ToastManager.shared.error("Failed to update password")
+            print(error)
+        }
+    }
 }
 
