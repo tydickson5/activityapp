@@ -11,26 +11,34 @@ struct GroupView: View{
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
     
-    @State var groupName: String = ""
-    
+    @State var showGroups: Bool = false
+    @State var newGroupName: String = ""
 
     @State private var isExpanded = false
     
     
     var body: some View {
-        ScrollView{
-            VStack{
-                DisclosureGroup("Select Group", isExpanded: $isExpanded){
-                    VStack{
-                        ForEach(groupHandler.groups){ group in
+        NavigationStack {
+            Form {
+                Section("Select Group"){
+                    HStack{
+                        Text("Select")
+                        Spacer()
+                        Image(systemName: showGroups ? "chevron.down": "chevron.right")
+                    }
+                    .onTapGesture {
+                        showGroups.toggle()
+                    }
+                    ForEach(groupHandler.groups){ group in
+                        if(group.id == groupHandler.selectedGroup || showGroups){
                             HStack{
+                                if(groupHandler.selectedGroup == group.id){
+                                    Image(systemName: "checkmark").foregroundColor(Color.lightBlue)
+                                }
                                 Text(group.name)
                                 Spacer()
-                                if(groupHandler.selectedGroup == group.id){
-                                    Image(systemName: "checkmark").foregroundColor(Color.dark)
-                                }
+                                
                             }
-                            .padding()
                             .onTapGesture {
                                 groupHandler.selectedGroup = group.id
                                 Task{
@@ -39,61 +47,46 @@ struct GroupView: View{
                                 }
                             }
                         }
+                        
+                    }
+                    HStack {
+                        ShareLink(
+                            item: URL(string: "https://caravyn.com/group/\(groupHandler.selectedGroup ?? "notfound")")!
+                        ) {
+                            Label("Share selected group", systemImage: "square.and.arrow.up")
+                                .foregroundStyle(Color.lightBlue)
+                        }
+                        .tint(Color.lightBlue)
                     }
                 }
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(8)
-                .padding(.bottom,20)
-                Text("-")
-                Text("Create Group")
-                
-                TextField("Name", text: $groupName)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.dark.opacity(0.5), lineWidth: 2)
-                    )
-                Button(action:{
-                    Task{
-                        await groupHandler.createGroup(userId: authHandler.user!.id, name: groupName)
-                    }
-                    
-                }){
-                    Text("Create")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 20)
-                        .tint(.white)
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.lightBlue)
-                        .stroke(Color.lightBlue.opacity(0.5), lineWidth: 2)
-                )
+                Section("Create Group") {
+                    HStack{
+                        TextField("Group Name", text: $newGroupName)
+                            .padding(5)
 
-                Button(action:{
-                    Task{
-                        authHandler.logout()
+                        Spacer()
+                        Button(action:{
+                            
+                            Task{
+                                await groupHandler.createGroup(userId: authHandler.user!.id, name: newGroupName)
+                                newGroupName = ""
+                            }
+                        }){
+                            Text("Create")
+                                .tint(.white)
+                                .frame(height:1)
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(.dark)
+                                .stroke(Color.dark.opacity(0.5), lineWidth: 2)
+                        )
                     }
-                }){
-                    Text("Logout of Account")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 20)
-                        .tint(.white)
                 }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.red)
-                        .stroke(Color.red.opacity(0.5), lineWidth: 2)
-                )
             }
-            .padding()
         }
-        .refreshable {
-            await groupHandler.loadGroups(user: authHandler.user!)
-        }
+        
         
         
     }

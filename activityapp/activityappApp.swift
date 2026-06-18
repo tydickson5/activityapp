@@ -39,34 +39,40 @@ struct activityappApp: App {
                     authHandler.appDelegate = appDelegate
                 }
                 .onOpenURL { url in
-                    print("OPEN URL:", url.absoluteString)
+                    Task{
+                        print("OPEN URL:", url.absoluteString)
 
-                    // Password reset first
-                    if url.host == "reset-password" ||
-                       url.absoluteString.contains("type=recovery") {
+                        // Password reset first
+                        if url.host == "reset-password" ||
+                           url.absoluteString.contains("type=recovery") {
 
-                        Task {
-                            do {
-                                try await SupabaseHandler.client.auth.session(from: url)
+                            Task {
+                                do {
+                                    try await SupabaseHandler.client.auth.session(from: url)
 
-                                await MainActor.run {
-                                    showResetPassword = true
+                                    await MainActor.run {
+                                        showResetPassword = true
+                                    }
+                                } catch {
+                                    print(error)
                                 }
-                            } catch {
-                                print(error)
                             }
+
+                            return
+                        }
+                        var waited = 0
+                        while authHandler.isLoading && waited < 50 {
+                            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                            waited += 1
                         }
 
-                        return
-                    }
+                        // Group invite logic second
+                        guard authHandler.isAuthenticated else {
+                            ToastManager.shared.error("You are not logged in")
+                            return
+                        }
 
-                    // Group invite logic second
-                    guard authHandler.isAuthenticated else {
-                        ToastManager.shared.error("You are not logged in")
-                        return
-                    }
 
-                    Task {
                         let parts = url.pathComponents
 
                         guard parts.count >= 3 else { return }
@@ -78,7 +84,9 @@ struct activityappApp: App {
                             userId: authHandler.user!.id,
                             groupId: groupId
                         )
+                        
                     }
+                    
                 }
                 .sheet(isPresented: $showResetPassword) {
                     ResetPasswordView(isPresented: $showResetPassword)

@@ -137,7 +137,7 @@ struct PostView: View{
                     
                     
                 }){
-                    Text("Upload")
+                    Text("Post")
                         .frame(maxWidth: .infinity)
                         .frame(height: 20)
                         .tint(.white)

@@ -82,6 +82,11 @@ final class GroupsHandler: ObservableObject {
     }
     
     func createGroup(userId: String, name: String) async{
+        
+        if(name == ""){
+            ToastManager.shared.error("Add your group name")
+            return
+        }
         do {
             var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/groups/create")!)
             
@@ -123,17 +128,22 @@ final class GroupsHandler: ObservableObject {
                             data: data,
                             encoding: .utf8
                         ) ?? "")
+                        let membership = try JSONDecoder().decode(GroupMember.self, from: data)
+                        self.memberships.append(membership)
+                        await self.fetchGroups(userId: userId)
+                        //update selected  group
+                        ToastManager.shared.success("Group created successfully")
                         
-                        await fetchGroups(userId: userId)
 
                     } catch {
 
                         print("Create group failed:", error)
-
+                        ToastManager.shared.error("Group creation failed")
                     }
                 }
             } catch {
                 print(error)
+                ToastManager.shared.error("Group creation failed")
             }
            
             
@@ -180,12 +190,16 @@ final class GroupsHandler: ObservableObject {
                     ) ?? "")
                     
                     await fetchGroups(userId: userId)
+                    ToastManager.shared.success("Success")
+                    
                 } catch {
                     print("Join group failed:", error)
+                    ToastManager.shared.error("Join group failed")
                 }
             }
         } catch{
             print(error)
+            ToastManager.shared.error("Join group failed")
         }
     }
 }

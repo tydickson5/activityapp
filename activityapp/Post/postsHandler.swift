@@ -10,6 +10,7 @@ internal import Combine
 import UIKit
 import Supabase
 import AVFoundation
+import _LocationEssentials
 
 @MainActor
 final class PostsHandler: ObservableObject {
@@ -72,6 +73,11 @@ final class PostsHandler: ObservableObject {
     func createImagePost(imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double) async{
         isLoading = true
         do {
+            
+            guard !isTooCloseToExistingPost(latitude: latitude, longitude: longitude) else {
+                ToastManager.shared.error("Too close to an existing post")
+                return
+            }
             
             let postId =
                 UUID()
@@ -140,7 +146,10 @@ final class PostsHandler: ObservableObject {
         print("posting vid")
         isLoading = true
         do {
-            
+            guard !isTooCloseToExistingPost(latitude: latitude, longitude: longitude) else {
+                ToastManager.shared.error("Too close to an existing post")
+                return
+            }
             
             
             let postId =
@@ -281,6 +290,21 @@ final class PostsHandler: ObservableObject {
             print(error)
             return nil
         }
+    }
+    
+    func isTooCloseToExistingPost(latitude: Double, longitude: Double) -> Bool {
+        let newLocation = CLLocation(latitude: latitude, longitude: longitude)
+        
+        for post in posts {
+            guard let postLat = post.latitude, let postLon = post.longitude else { continue }
+            let existingLocation = CLLocation(latitude: postLat, longitude: postLon)
+            let distanceInFeet = newLocation.distance(from: existingLocation) * 3.28084
+            
+            if distanceInFeet < 25 {
+                return true
+            }
+        }
+        return false
     }
     
 }

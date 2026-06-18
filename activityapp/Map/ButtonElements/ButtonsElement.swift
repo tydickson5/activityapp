@@ -21,6 +21,7 @@ struct ButtonsElement: View {
                         groupHandler.selectedGroup = group.id
                         Task{
                             await groupHandler.updatedSelectedGroup(userId: authHandler.user!.id, groupId: group.id)
+                            authHandler.user?.selected_group = group.id
                             await groupHandler.postHandler.getPosts(userId: authHandler.user!.id, groupId: group.id)
                         }
                         

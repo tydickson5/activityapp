@@ -192,5 +192,37 @@ class AuthHandler: ObservableObject {
             print(error)
         }
     }
+    
+    func changeUsername(newUsername: String) async {
+        do {
+            try await SupabaseHandler.client.from("profiles")
+                .update(["username": newUsername])
+                .eq("id", value: self.user!.id)
+                .execute()
+            
+            self.user!.username = newUsername
+        } catch {
+            ToastManager.shared.error("Failed to update username")
+            print(error)
+        }
+    }
+    
+    func refreshProfile() async {
+        do {
+            let fetched: AppUser = try await SupabaseHandler.client
+                .from("profiles")
+                .select("*")
+                .eq("id", value: self.user!.id)
+                .single()
+                .execute()
+                .value
+            
+            self.user = fetched
+            
+        } catch {
+            ToastManager.shared.error("Failed to refresh page")
+            print(error)
+        }
+    }
 }
 

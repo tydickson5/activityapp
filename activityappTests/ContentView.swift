@@ -34,7 +34,7 @@ struct ContentView: View {
         
         if(authHandler.isAuthenticated){
             TabView{
-                HomeView(postHandler: groupHandler.postHandler).id(1)
+                HomeView().id(1)
                     .tabItem { Label("Your List", systemImage: "house.fill") }
                     .onAppear{
                         Task{
@@ -45,16 +45,21 @@ struct ContentView: View {
                     }
                     .environmentObject(groupHandler)
 
-                GroupView()
-                    .tabItem { Label("Groups",
-                        systemImage: "person.2.fill")}
-                    .environmentObject(groupHandler)
+                
                 PostView()
                     .tabItem { Label("Posts",
                         systemImage: "plus")}
                     .environmentObject(groupHandler)
                     .environmentObject(postHandler)
                     .environmentObject(locationHandler)
+                GroupView()
+                    .tabItem { Label("Groups",
+                        systemImage: "person.2.fill")}
+                    .environmentObject(groupHandler)
+                AccountView()
+                    .tabItem{
+                        Label("Account", systemImage: "person.crop.circle.fill")
+                    }
             }
             .tint(Color.dark)
             .onReceive(NotificationCenter.default.publisher(for: .notificationTapped)) { notification in
@@ -81,8 +86,15 @@ struct ContentView: View {
         else{
             if(authHandler.isLoading){
                 Text("Loading...")
-                Button("Back"){
+                    .padding(.bottom, 5)
+                Button(action:{
                     authHandler.logout()
+                }){
+                    HStack{
+                        Image(systemName: "arrow.left")
+                        Text("Back to Login")
+                    }
+                    .tint(Color.dark)
                 }
             }
             else{

@@ -12,7 +12,6 @@ struct MapElement: View {
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
     @StateObject private var locationManager = LocationManager()
-    @ObservedObject var postHandler: PostsHandler
     
     @State private var position: MapCameraPosition = .automatic
     @State private var zoomLevel: Double = 112.60658752186015
