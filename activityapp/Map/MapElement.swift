@@ -12,13 +12,18 @@ struct MapElement: View {
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
     @StateObject private var locationManager = LocationManager()
+    @ObservedObject private var postHandler: PostsHandler  // add this
+    
+    init(postHandler: PostsHandler) {  // add this
+        self.postHandler = postHandler
+    }
     
     @State private var position: MapCameraPosition = .automatic
     @State private var zoomLevel: Double = 112.60658752186015
     
     var body: some View {
         Map(position: $position) {
-            ForEach(groupHandler.postHandler.posts.filter { $0.coordinate != nil }) { post in
+            ForEach(postHandler.posts.filter { $0.coordinate != nil }) { post in
 
                 if zoomLevel < 0.30 {
 

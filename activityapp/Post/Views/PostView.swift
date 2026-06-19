@@ -52,15 +52,18 @@ struct PostView: View{
                         .clipShape(RoundedRectangle(cornerRadius: 25))
                 }
                 Spacer()
-                HStack{
-                    Text("Post to public")
-                    Spacer()
-                    Toggle("", isOn: $postToPublic)
-                        .labelsHidden()
-                        .onTapGesture {
-                            print("clicked")
-                        }
+                if(groupHandler.selectedGroup != "6ce9c8f8-2ff2-4f12-8f74-19671fcfb265"){
+                    HStack{
+                        Text("Post to public")
+                        Spacer()
+                        Toggle("", isOn: $postToPublic)
+                            .labelsHidden()
+                            .onTapGesture {
+                                print("clicked")
+                            }
+                    }
                 }
+                
                 TextField("caption", text: $caption)
                     .padding()
                     .background(
@@ -121,6 +124,10 @@ struct PostView: View{
                             .selectedGroup != nil
                         else {
                             return
+                        }
+                        
+                        if(groupHandler.selectedGroup == "6ce9c8f8-2ff2-4f12-8f74-19671fcfb265"){
+                            postToPublic = true
                         }
                         
                         if isImage{

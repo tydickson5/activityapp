@@ -35,7 +35,7 @@ struct ContentView: View {
         if(authHandler.isAuthenticated){
             TabView{
                 HomeView().id(1)
-                    .tabItem { Label("Your List", systemImage: "house.fill") }
+                    .tabItem { Label("Map", systemImage: "map.fill") }
                     .onAppear{
                         Task{
                             await groupHandler.loadGroups(user: authHandler.user!)
