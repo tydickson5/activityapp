@@ -24,6 +24,8 @@ struct PostView: View{
     @State private var caption: String = ""
     @State private var isImage: Bool = true
     
+    @State private var postToPublic: Bool = false
+    
     var body: some View{
         
         ZStack{
@@ -50,7 +52,15 @@ struct PostView: View{
                         .clipShape(RoundedRectangle(cornerRadius: 25))
                 }
                 Spacer()
-                
+                HStack{
+                    Text("Post to public")
+                    Spacer()
+                    Toggle("", isOn: $postToPublic)
+                        .labelsHidden()
+                        .onTapGesture {
+                            print("clicked")
+                        }
+                }
                 TextField("caption", text: $caption)
                     .padding()
                     .background(
@@ -98,13 +108,7 @@ struct PostView: View{
                             .fill(.lightBlue)
                             .stroke(Color.lightBlue.opacity(0.5), lineWidth: 2)
                     )
-                    .onChange(of:video){ url in
-                        guard let url else {
-                            return
-                        }
-                        thumbnail = groupHandler.postHandler.generateThumbnail(from: url)
-                        isImage = false
-                    }
+                    
                     
                 }
                 
@@ -120,10 +124,10 @@ struct PostView: View{
                         }
                         
                         if isImage{
-                            await groupHandler.postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude)
+                            await groupHandler.postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
                         } else {
                             print("vid")
-                            await groupHandler.postHandler.createVideoPost(videoURL: video!, thumbnailURL: thumbnail!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude)
+                            await groupHandler.postHandler.createVideoPost(videoURL: video!, thumbnailURL: thumbnail!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
                         }
                         
                         
@@ -131,7 +135,7 @@ struct PostView: View{
                         
                         caption = ""
                         self.image = nil
-                        
+                        postToPublic = false
                         await groupHandler.postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
                     }
                     
@@ -150,7 +154,13 @@ struct PostView: View{
                 )
             }
             .padding()
-            
+            .onChange(of:video){ url in
+                guard let url else {
+                    return
+                }
+                thumbnail = groupHandler.postHandler.generateThumbnail(from: url)
+                isImage = false
+            }
             .sheet(
                 isPresented:
                     $showCamera
@@ -162,7 +172,9 @@ struct PostView: View{
             }
             .fullScreenCover(isPresented: $showVideo){
                 
-                VideoView(recordedVideoUrl: $video)
+                VideoView(recordedVideoUrl: $video){
+                    showVideo = false
+                }
             }
             if(groupHandler.postHandler.isLoading){
                 Color.black.opacity(0.3)
@@ -171,6 +183,7 @@ struct PostView: View{
                 ProgressView()
                     .scaleEffect(1.5)
             }
+            
         }
 
         

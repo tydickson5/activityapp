@@ -70,7 +70,7 @@ final class PostsHandler: ObservableObject {
         }
     }
     
-    func createImagePost(imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double) async{
+    func createImagePost(imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async{
         isLoading = true
         do {
             
@@ -108,6 +108,7 @@ final class PostsHandler: ObservableObject {
                     "videoUrl": "",
                     "latitude": latitude,
                     "longitude": longitude,
+                    "public": isPublicPost
                 ]
                 
                 request.httpBody = try? JSONSerialization.data(withJSONObject: body)
@@ -142,7 +143,7 @@ final class PostsHandler: ObservableObject {
         
     }
     
-    func createVideoPost(videoURL: URL, thumbnailURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double) async{
+    func createVideoPost(videoURL: URL, thumbnailURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async{
         print("posting vid")
         isLoading = true
         do {
@@ -182,6 +183,7 @@ final class PostsHandler: ObservableObject {
                     "videoUrl": filepathVideo,
                     "latitude": latitude,
                     "longitude": longitude,
+                    "public": isPublicPost
                 ]
                 
                 request.httpBody = try? JSONSerialization.data(withJSONObject: body)

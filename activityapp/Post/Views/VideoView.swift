@@ -14,6 +14,8 @@ struct VideoView: UIViewControllerRepresentable {
     
     @Environment(\.dismiss) var dismiss
     
+    var onFinished: () -> Void
+    
     func makeUIViewController(context: Context) -> VideoViewController {
         let vc = VideoViewController()
         vc.delegate = context.coordinator
@@ -36,12 +38,16 @@ struct VideoView: UIViewControllerRepresentable {
         }
         
         func didFinishRecording(url: URL) {
-            parent.recordedVideoUrl = url
-            parent.dismiss()
+            DispatchQueue.main.async {
+                self.parent.recordedVideoUrl = url
+                self.parent.onFinished()
+            }
         }
         
-        func didCancel(){
-            parent.dismiss()
+        func didCancel() {
+            DispatchQueue.main.async {
+                self.parent.onFinished()
+            }
         }
     }
     
@@ -55,13 +61,14 @@ protocol VideoViewControllerDelegate: AnyObject {
 class VideoViewController: UIViewController {
 
     
-    
+    private var recordedURL: URL?
     weak var delegate: VideoViewControllerDelegate?
     
     private let session = AVCaptureSession()
     private var videoOutput = AVCaptureMovieFileOutput()
     private var previewLayer: AVCaptureVideoPreviewLayer!
     private var recordButton: UIButton!
+    private var doneButton: UIButton!
     private var progressBar: UIProgressView!
     private var timer: Timer?
     private var elapsedTime: Float = 0.0
@@ -141,6 +148,15 @@ class VideoViewController: UIViewController {
         recordButton.addTarget(self, action: #selector(recordTapped), for: .touchUpInside)
         view.addSubview(recordButton)
         
+        let doneButton = UIButton(type: .system)
+        doneButton.setTitle("Done", for: .normal)
+        doneButton.tintColor = .systemBlue
+        doneButton.isHidden = true  // hidden until recording stops
+        doneButton.translatesAutoresizingMaskIntoConstraints = false
+        doneButton.addTarget(self, action: #selector(doneTapped), for: .touchUpInside)
+        view.addSubview(doneButton)
+        self.doneButton = doneButton
+        
         NSLayoutConstraint.activate([
             cancelButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -152,7 +168,10 @@ class VideoViewController: UIViewController {
             recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             recordButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),
             recordButton.widthAnchor.constraint(equalToConstant: 80),
-            recordButton.heightAnchor.constraint(equalToConstant: 80)
+            recordButton.heightAnchor.constraint(equalToConstant: 80),
+            
+            doneButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
         ])
             
@@ -172,6 +191,10 @@ class VideoViewController: UIViewController {
             videoOutput.stopRecording()
         }
         delegate?.didCancel()
+    }
+    
+    @objc private func doneTapped() {
+        delegate?.didFinishRecording(url: recordedURL!)
     }
     
     private func startRecording() {
@@ -204,10 +227,26 @@ class VideoViewController: UIViewController {
 
 extension VideoViewController: AVCaptureFileOutputRecordingDelegate {
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        print("didFinishRecordingTo called")
+        print("error:", error as Any)
+        print("outputFileURL:", outputFileURL)
+        
         if let error = error {
-            print(error)
-            return
+            let succeeded = (error as NSError).userInfo[AVErrorRecordingSuccessfullyFinishedKey] as? Bool ?? false
+            print("succeeded:", succeeded)
+            if !succeeded {
+                print("Recording truly failed:", error)
+                return
+            }
         }
-        delegate?.didFinishRecording(url: outputFileURL)
+        
+        recordedURL = outputFileURL
+        print("recordedURL set:", recordedURL as Any)
+        
+        DispatchQueue.main.async {
+            print("showing done button")
+            self.doneButton.isHidden = false
+            self.recordButton.isHidden = true
+        }
     }
 }
