@@ -11,12 +11,9 @@ struct MapElement: View {
     
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
-    @StateObject private var locationManager = LocationManager()
-    @ObservedObject private var postHandler: PostsHandler  // add this
+    @StateObject var locationManager =  LocationManager()
+    @EnvironmentObject var postHandler: PostsHandler  // add this
     
-    init(postHandler: PostsHandler) {  // add this
-        self.postHandler = postHandler
-    }
     
     @State private var position: MapCameraPosition = .automatic
     @State private var zoomLevel: Double = 112.60658752186015
@@ -28,7 +25,8 @@ struct MapElement: View {
                 if zoomLevel < 0.30 {
 
                     Annotation("", coordinate: post.coordinate!) {
-                        PostElement(post: post, groupHandler: groupHandler)
+                        PostElement(post: post)
+                            .environmentObject(postHandler)
                     }
 
                     MapCircle(center: post.coordinate!, radius: 10)
@@ -59,6 +57,7 @@ struct MapElement: View {
         .ignoresSafeArea()
         .overlay(alignment: .topTrailing){
             ButtonsElement(locationManager: locationManager)
+                
         }
     }
     

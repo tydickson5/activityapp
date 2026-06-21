@@ -12,9 +12,8 @@ final class GroupsHandler: ObservableObject {
     
     private var memberships: [GroupMember] = []
     
-    @Published var postHandler: PostsHandler = PostsHandler()
         
-    func loadGroups(user: AppUser) async {
+    func loadGroups(user: AppUser) async -> String?{
         //original fetch
         await fetchMemberships(userId: user.id)
         await fetchGroups(userId: user.id)
@@ -25,8 +24,7 @@ final class GroupsHandler: ObservableObject {
         
         selectedGroup = user.selected_group
 
-        
-        await postHandler.getPosts(userId: user.id, groupId: selectedGroup!)
+        return selectedGroup
         
     }
     
@@ -81,11 +79,11 @@ final class GroupsHandler: ObservableObject {
         }
     }
     
-    func createGroup(userId: String, name: String) async{
+    func createGroup(userId: String, name: String)async ->String? {
         
         if(name == ""){
             ToastManager.shared.error("Add your group name")
-            return
+            return nil
         }
         do {
             var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/groups/create")!)
@@ -94,64 +92,61 @@ final class GroupsHandler: ObservableObject {
             
             request.httpMethod = "POST"
             
-            do {
-                var token = try await SupabaseHandler.client.auth.session.accessToken
-                request.setValue(
-                    "Bearer \(token)",
-                    forHTTPHeaderField: "Authorization")
-                
-                request.setValue(
-                    "application/json",
-                    forHTTPHeaderField: "Content-Type"
+            var token = try await SupabaseHandler.client.auth.session.accessToken
+            request.setValue(
+                "Bearer \(token)",
+                forHTTPHeaderField: "Authorization")
+            
+            request.setValue(
+                "application/json",
+                forHTTPHeaderField: "Content-Type"
+            )
+
+            let body: [String: Any] = [
+                "userId": userId,
+                "name": name
+            ]
+            
+            request.httpBody =
+                try? JSONSerialization.data(
+                    withJSONObject: body
                 )
 
-                let body: [String: Any] = [
-                    "userId": userId,
-                    "name": name
-                ]
+
+            let (data, response) =
+                try await URLSession.shared.data(
+                    for: request
+                )
+
+            print(String(
+                data: data,
+                encoding: .utf8
+            ) ?? "")
+            let membership = try JSONDecoder().decode(GroupMember.self, from: data)
+            self.memberships.append(membership)
+            await self.fetchGroups(userId: userId)
+            //update selected  group
+            print(membership.group_id)
+            ToastManager.shared.success("Group created successfully")
+            await self.updatedSelectedGroup(userId: userId, groupId: membership.group_id)
+            self.selectedGroup = membership.group_id
+            
+            return membership.group_id
+
                 
-                request.httpBody =
-                    try? JSONSerialization.data(
-                        withJSONObject: body
-                    )
-
-                Task {
-
-                    do {
-
-                        let (data, response) =
-                            try await URLSession.shared.data(
-                                for: request
-                            )
-
-                        print(String(
-                            data: data,
-                            encoding: .utf8
-                        ) ?? "")
-                        let membership = try JSONDecoder().decode(GroupMember.self, from: data)
-                        self.memberships.append(membership)
-                        await self.fetchGroups(userId: userId)
-                        //update selected  group
-                        ToastManager.shared.success("Group created successfully")
-                        
-
-                    } catch {
-
-                        print("Create group failed:", error)
-                        ToastManager.shared.error("Group creation failed")
-                    }
-                }
-            } catch {
-                print(error)
-                ToastManager.shared.error("Group creation failed")
-            }
+            
+        } catch {
+            print(error)
+            ToastManager.shared.error("Group creation failed")
+            return nil
+        }
            
             
             
-        }
+        
     }
     
-    func joinGroup(userId: String, groupId: String) async{
+    func joinGroup(userId: String, groupId: String) async -> String?{
         do {
             var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/groups/join")!)
             
@@ -176,30 +171,33 @@ final class GroupsHandler: ObservableObject {
                 withJSONObject: body
                 , options: .fragmentsAllowed)
             
-            Task {
-                
-                do {
-                    let (data, response) =
-                        try await URLSession.shared.data(
-                            for: request
-                        )
 
-                    print(String(
-                        data: data,
-                        encoding: .utf8
-                    ) ?? "")
+            let (data, response) =
+                try await URLSession.shared.data(
+                    for: request
+                )
+
+            print(String(
+                data: data,
+                encoding: .utf8
+            ) ?? "")
+            let membership = try JSONDecoder().decode(GroupMember.self, from: data)
+            await self.fetchMemberships(userId: userId)
+            
+            await self.fetchGroups(userId: userId)
+            
+            await self.updatedSelectedGroup(userId: userId, groupId: membership.group_id)
+            self.selectedGroup = membership.group_id
+            
+            ToastManager.shared.success("Success")
+            return membership.group_id
                     
-                    await fetchGroups(userId: userId)
-                    ToastManager.shared.success("Success")
-                    
-                } catch {
-                    print("Join group failed:", error)
-                    ToastManager.shared.error("Join group failed")
-                }
-            }
+
+            
         } catch{
             print(error)
             ToastManager.shared.error("Join group failed")
+            return ""
         }
     }
 }

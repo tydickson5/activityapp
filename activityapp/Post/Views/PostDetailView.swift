@@ -12,7 +12,8 @@ struct PostDetailView: View {
     
     let post: Post
     
-    var groupHandler: GroupsHandler
+    @EnvironmentObject var groupHandler: GroupsHandler
+    @EnvironmentObject var postHandler: PostsHandler
     
     @State private var player: AVPlayer?
     
@@ -35,8 +36,7 @@ struct PostDetailView: View {
         VStack{
             if(post.media_type == "image"){
                 AsyncImage(
-                    url: groupHandler
-                        .postHandler
+                    url: postHandler
                         .imageURL(
                             path: post.media_url!
                         )
@@ -66,7 +66,7 @@ struct PostDetailView: View {
                         .frame(maxWidth: .infinity)
                 } else {
                     if let thumbPath = post.media_url,
-                       let thumbURL = groupHandler.postHandler.imageURL(path: thumbPath) {
+                       let thumbURL = postHandler.imageURL(path: thumbPath) {
                         AsyncImage(url: thumbURL) { image in
                             image.resizable().scaledToFill()
                         } placeholder: {
@@ -82,8 +82,8 @@ struct PostDetailView: View {
         .task {
             guard post.media_type == "video" else { return }
             
-            if let videoPath = await groupHandler.postHandler.getVideoUpload(postId: post.id),
-               let videoURL = groupHandler.postHandler.imageURL(path: videoPath) {
+            if let videoPath = await postHandler.getVideoUpload(postId: post.id),
+               let videoURL = postHandler.imageURL(path: videoPath) {
                 player = AVPlayer(url: videoURL)
                 player?.play()
             }

@@ -9,7 +9,8 @@ import SwiftUI
 struct PostElement: View {
     
     let post: Post
-    let groupHandler: GroupsHandler
+    @EnvironmentObject var groupHandler: GroupsHandler
+    @EnvironmentObject var postHandler: PostsHandler
     
     var body: some View{
         ZStack(alignment: .bottom){
@@ -17,11 +18,11 @@ struct PostElement: View {
             
             VStack(spacing: 0) {
                 NavigationLink {
-                    PostDetailView(post: post, groupHandler: groupHandler)
+                    PostDetailView(post: post)
                 } label: {
                     if let media = post.media_url {
                         AsyncImage(
-                            url: groupHandler.postHandler.imageURL(path: media)
+                            url: postHandler.imageURL(path: media)
                         ) { image in
                             image
                                 .resizable()
@@ -34,7 +35,7 @@ struct PostElement: View {
                         }
                         .onAppear {
                             print("IMAGE PATH:", media)
-                            print("RESOLVED URL:", groupHandler.postHandler.imageURL(path: media) as Any)
+                            print("RESOLVED URL:", postHandler.imageURL(path: media) as Any)
                         }
                     }
                 }

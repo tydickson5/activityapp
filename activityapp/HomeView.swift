@@ -12,11 +12,13 @@ struct HomeView: View {
     
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var postHandler: PostsHandler
+
     
     var body: some View {
         NavigationStack {
             ZStack{
-                MapElement(postHandler: groupHandler.postHandler)
+                MapElement()
             }
         }
     }

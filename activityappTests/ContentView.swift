@@ -38,9 +38,11 @@ struct ContentView: View {
                     .tabItem { Label("Map", systemImage: "map.fill") }
                     .onAppear{
                         Task{
-                            await groupHandler.loadGroups(user: authHandler.user!)
-
-                            print("POST COUNT:", groupHandler.postHandler.posts.count)
+                            if let groupId = await groupHandler.loadGroups(user: authHandler.user!){
+                                await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupId)
+                            }
+                            
+                            print("POST COUNT:", postHandler.posts.count)
                         }
                     }
                     .environmentObject(groupHandler)
@@ -69,7 +71,7 @@ struct ContentView: View {
                     print("🔥 Post ID:", postId)
 
                     Task {
-                        let post = await groupHandler.postHandler.getPost(postId: postId)
+                        let post = await postHandler.getPost(postId: postId)
                         print("🔥 Post:", post as Any)
 
                         if let post {
@@ -79,7 +81,8 @@ struct ContentView: View {
                 }
             }
             .sheet(item: $tappedPost) { post in
-                PostDetailView(post: post, groupHandler: groupHandler)
+                PostDetailView(post: post)
+                    
             }
 
         }

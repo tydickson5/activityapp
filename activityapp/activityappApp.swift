@@ -80,10 +80,15 @@ struct activityappApp: App {
 
                         let groupId = parts[2]
 
-                        await groupHandler.joinGroup(
+                        if let groupId = await groupHandler.joinGroup(
                             userId: authHandler.user!.id,
                             groupId: groupId
-                        )
+                        ){
+                            authHandler.user?.selected_group = groupId
+                            
+                            await postHandler.getPosts(userId: authHandler.user!.id, groupId: authHandler.user!.selected_group)
+                        }
+                        
                         
                     }
                     

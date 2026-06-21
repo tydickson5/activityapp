@@ -10,6 +10,7 @@ struct GroupView: View{
     
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var postHandler: PostsHandler
     
     @State var showGroups: Bool = false
     @State var newGroupName: String = ""
@@ -22,9 +23,15 @@ struct GroupView: View{
             Form {
                 Section("Select Group"){
                     HStack{
+                        NavigationLink(
+                            "go", destination: GroupListView())
+                    
+                    }
+                    HStack{
                         Text("Select")
                         Spacer()
                         Image(systemName: showGroups ? "chevron.down": "chevron.right")
+                            
                     }
                     .onTapGesture {
                         showGroups.toggle()
@@ -44,6 +51,7 @@ struct GroupView: View{
                                 Task{
                                     await groupHandler.updatedSelectedGroup(userId: authHandler.user!.id, groupId: group.id)
                                     authHandler.user?.selected_group = group.id
+                                    await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
                                 }
                             }
                         }
@@ -63,13 +71,22 @@ struct GroupView: View{
                     HStack{
                         TextField("Group Name", text: $newGroupName)
                             .padding(5)
-
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.gray.opacity(0.5), lineWidth: 2)
+                            )
                         Spacer()
                         Button(action:{
                             
                             Task{
-                                await groupHandler.createGroup(userId: authHandler.user!.id, name: newGroupName)
-                                newGroupName = ""
+                                
+                                
+                                if let groupId = await groupHandler.createGroup(userId: authHandler.user!.id, name: newGroupName) {
+                                    print(groupId)
+                                    authHandler.user?.selected_group = groupId
+                                    newGroupName = ""
+                                    await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupId)
+                                }
                             }
                         }){
                             Text("Create")

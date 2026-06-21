@@ -9,8 +9,8 @@ import SwiftUI
 struct PostView: View{
     
     @EnvironmentObject var groupHandler: GroupsHandler
-    
     @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var postHandler: PostsHandler
     
     @EnvironmentObject var locationHandler: LocationHandler
     
@@ -131,10 +131,10 @@ struct PostView: View{
                         }
                         
                         if isImage{
-                            await groupHandler.postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
+                            await postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
                         } else {
                             print("vid")
-                            await groupHandler.postHandler.createVideoPost(videoURL: video!, thumbnailURL: thumbnail!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
+                            await postHandler.createVideoPost(videoURL: video!, thumbnailURL: thumbnail!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
                         }
                         
                         
@@ -143,7 +143,7 @@ struct PostView: View{
                         caption = ""
                         self.image = nil
                         postToPublic = false
-                        await groupHandler.postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
+                        await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
                     }
                     
                     
@@ -165,7 +165,7 @@ struct PostView: View{
                 guard let url else {
                     return
                 }
-                thumbnail = groupHandler.postHandler.generateThumbnail(from: url)
+                thumbnail = postHandler.generateThumbnail(from: url)
                 isImage = false
             }
             .sheet(
@@ -183,7 +183,7 @@ struct PostView: View{
                     showVideo = false
                 }
             }
-            if(groupHandler.postHandler.isLoading){
+            if(postHandler.isLoading){
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
 

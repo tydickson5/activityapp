@@ -11,7 +11,8 @@ struct ButtonsElement: View {
     
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
-    @StateObject var locationManager: LocationManager
+    @EnvironmentObject var postHandler: PostsHandler
+    var locationManager: LocationManager
     
     var body: some View {
         VStack{
@@ -22,7 +23,7 @@ struct ButtonsElement: View {
                         Task{
                             await groupHandler.updatedSelectedGroup(userId: authHandler.user!.id, groupId: group.id)
                             authHandler.user?.selected_group = group.id
-                            await groupHandler.postHandler.getPosts(userId: authHandler.user!.id, groupId: group.id)
+                            await postHandler.getPosts(userId: authHandler.user!.id, groupId: group.id)
                         }
                         
                     } label: {
@@ -47,7 +48,7 @@ struct ButtonsElement: View {
             }
             Button(action:{
                 Task{
-                    await groupHandler.postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
+                    await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
                 }
             }){
                 Image(systemName: "arrow.clockwise")
