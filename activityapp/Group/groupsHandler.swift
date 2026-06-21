@@ -28,6 +28,15 @@ final class GroupsHandler: ObservableObject {
         
     }
     
+    func fetchGroupName(groupId: String) -> String?{
+        for group in groups {
+            if(group.id == groupId){
+                return group.name
+            }
+        }
+        return "Loading..."
+    }
+    
     
     func fetchGroups(userId: String) async{
         do {

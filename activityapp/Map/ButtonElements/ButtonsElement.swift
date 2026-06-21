@@ -15,7 +15,7 @@ struct ButtonsElement: View {
     var locationManager: LocationManager
     
     var body: some View {
-        VStack{
+        VStack(spacing: 12){
             Menu{
                 ForEach(groupHandler.groups){ group in
                     Button {
@@ -39,12 +39,16 @@ struct ButtonsElement: View {
                 }
 
             } label: {
-                Image(systemName: "chevron.down")
-                    .frame(width: 15, height: 15)
-                    .foregroundStyle(Color.white)
-                    .padding()
-                    .background(Color.dark.opacity(0.9))
-                    .clipShape(Circle())
+                HStack(spacing: 4) {  // wrap in HStack
+                    Text(groupHandler.fetchGroupName(groupId: groupHandler.selectedGroup ?? "") ?? "Loading...")
+                        .foregroundStyle(Color.white)
+                    Image(systemName: "chevron.down")
+                        .foregroundStyle(Color.white)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(Color.dark.opacity(0.9))
+                .clipShape(Capsule())
             }
             Button(action:{
                 Task{
@@ -58,6 +62,7 @@ struct ButtonsElement: View {
                     .background(Color.dark.opacity(0.9))
                     .clipShape(Circle())
             }
+            .frame(maxWidth: .infinity, alignment: .trailing)
             Button(action:{
                 locationManager.recenter()
             }){
@@ -68,10 +73,13 @@ struct ButtonsElement: View {
                     .background(Color.dark.opacity(0.9))
                     .clipShape(Circle())
             }
-
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            Spacer()
             
         }
-        .padding()
+        .fixedSize()
+        .padding(.top, 0)
+        .padding(.trailing, 16)
     }
     
 }
