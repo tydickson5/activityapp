@@ -25,6 +25,7 @@ struct PostView: View{
     @State private var isImage: Bool = true
     
     @State private var postToPublic: Bool = false
+    @State private var showAlert: Bool = false
     
     var body: some View{
         
@@ -130,20 +131,26 @@ struct PostView: View{
                             postToPublic = true
                         }
                         
-                        if isImage{
-                            await postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
+                        if(postToPublic){
+                            showAlert.toggle()
                         } else {
-                            print("vid")
-                            await postHandler.createVideoPost(videoURL: video!, thumbnailURL: thumbnail!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
+                            if isImage{
+                                await postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
+                            } else {
+                                print("vid")
+                                await postHandler.createVideoPost(videoURL: video!, thumbnailURL: thumbnail!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
+                            }
+                            
+                            
+                            
+                            
+                            caption = ""
+                            self.image = nil
+                            postToPublic = false
+                            await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
                         }
                         
                         
-                        
-                        
-                        caption = ""
-                        self.image = nil
-                        postToPublic = false
-                        await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
                     }
                     
                     
@@ -159,6 +166,27 @@ struct PostView: View{
                         .fill(.dark)
                         .stroke(Color.dark.opacity(0.5), lineWidth: 2)
                 )
+                .alert(isPresented: $showAlert){
+                    Alert(title: Text("Post to public"), message: Text("Are you sure you want to post to the public group everyone can see?"), primaryButton: .destructive(Text("Yes").foregroundStyle(Color.lightBlue)){
+                        Task{
+                            if isImage{
+                                await postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
+                            } else {
+                                print("vid")
+                                await postHandler.createVideoPost(videoURL: video!, thumbnailURL: thumbnail!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: locationHandler.latitude, longitude: locationHandler.longitude, isPublicPost: postToPublic)
+                            }
+                            
+                            
+                            
+                            
+                            caption = ""
+                            self.image = nil
+                            
+                            await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
+                            postToPublic = false
+                        }
+                    }, secondaryButton: .cancel())
+                }
             }
             .padding()
             .onChange(of:video){ url in
