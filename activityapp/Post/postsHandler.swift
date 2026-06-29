@@ -73,12 +73,12 @@ final class PostsHandler: ObservableObject {
     func createImagePost(imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async{
         isLoading = true
         do {
-            
+            /*
             guard !isTooCloseToExistingPost(latitude: latitude, longitude: longitude) else {
                 ToastManager.shared.error("Too close to an existing post")
                 return
             }
-            
+            */
             let postId =
                 UUID()
                 .uuidString
@@ -147,11 +147,12 @@ final class PostsHandler: ObservableObject {
         print("posting vid")
         isLoading = true
         do {
+            /*
             guard !isTooCloseToExistingPost(latitude: latitude, longitude: longitude) else {
                 ToastManager.shared.error("Too close to an existing post")
                 return
             }
-            
+            */
             
             let postId =
                 UUID()

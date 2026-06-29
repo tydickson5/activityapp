@@ -23,11 +23,14 @@
         <key>NSAllowsLocalNetworking</key>
         <true/>
     </dict>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>caravyn uses your photo library to share photos and their location</string>
 
     <key>UIBackgroundModes</key>
     <array>
         <string>remote-notification</string>
     </array>
+    
 
 </dict>
 </plist>
