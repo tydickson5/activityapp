@@ -21,50 +21,11 @@ struct GroupView: View{
     var body: some View {
         NavigationStack {
             Form {
-                Section("Select Group"){
+                Section(){
                     HStack{
                         NavigationLink(
-                            "go", destination: GroupListView())
+                            "My Groups", destination: GroupListView())
                     
-                    }
-                    HStack{
-                        Text("Select")
-                        Spacer()
-                        Image(systemName: showGroups ? "chevron.down": "chevron.right")
-                            
-                    }
-                    .onTapGesture {
-                        showGroups.toggle()
-                    }
-                    ForEach(groupHandler.groups){ group in
-                        if(group.id == groupHandler.selectedGroup || showGroups){
-                            HStack{
-                                if(groupHandler.selectedGroup == group.id){
-                                    Image(systemName: "checkmark").foregroundColor(Color.lightBlue)
-                                }
-                                Text(group.name)
-                                Spacer()
-                                
-                            }
-                            .onTapGesture {
-                                groupHandler.selectedGroup = group.id
-                                Task{
-                                    await groupHandler.updatedSelectedGroup(userId: authHandler.user!.id, groupId: group.id)
-                                    authHandler.user?.selected_group = group.id
-                                    await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
-                                }
-                            }
-                        }
-                        
-                    }
-                    HStack {
-                        ShareLink(
-                            item: URL(string: "https://caravyn.com/group/\(groupHandler.selectedGroup ?? "notfound")")!
-                        ) {
-                            Label("Share selected group", systemImage: "square.and.arrow.up")
-                                .foregroundStyle(Color.lightBlue)
-                        }
-                        .tint(Color.lightBlue)
                     }
                 }
                 Section("Create Group") {
@@ -91,7 +52,6 @@ struct GroupView: View{
                         }){
                             Text("Create")
                                 .tint(.white)
-                                .frame(height:1)
                         }
                         .padding()
                         .background(
