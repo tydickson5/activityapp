@@ -16,40 +16,7 @@ struct ButtonsElement: View {
     
     var body: some View {
         VStack(spacing: 12){
-            Menu{
-                ForEach(groupHandler.groups){ group in
-                    Button {
-                        groupHandler.selectedGroup = group.id
-                        Task{
-                            await groupHandler.updatedSelectedGroup(userId: authHandler.user!.id, groupId: group.id)
-                            authHandler.user?.selected_group = group.id
-                            await postHandler.getPosts(userId: authHandler.user!.id, groupId: group.id)
-                        }
-                        
-                    } label: {
-                        Label(
-                            group.name,
-                            systemImage: group.id == groupHandler.selectedGroup
-                                ? "checkmark"
-                                : ""
-                        )
-                        
-                    }
-                    
-                }
-
-            } label: {
-                HStack(spacing: 4) {  // wrap in HStack
-                    Text(groupHandler.fetchGroupName(groupId: groupHandler.selectedGroup ?? "") ?? "Loading...")
-                        .foregroundStyle(Color.white)
-                    Image(systemName: "chevron.down")
-                        .foregroundStyle(Color.white)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                .background(Color.dark.opacity(0.9))
-                .clipShape(Capsule())
-            }
+            GroupPillSelectorElement()
             Button(action:{
                 Task{
                     await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)

@@ -17,34 +17,39 @@ struct PostView: View{
     var body: some View{
         ZStack{
             VStack{
-                Menu{
-                    Button {
-                        page = "Image"
+                HStack{
+                    Menu{
+                        Button {
+                            page = "Image"
+                        } label: {
+                            Text("Image")
+                        }
+                        Button {
+                            page = "Video"
+                        } label: {
+                            Text("Video")
+                        }
+                        Button {
+                            page = "Upload"
+                        } label: {
+                            Text("Upload")
+                        }
                     } label: {
-                        Text("Image")
+                        HStack{
+                            Text(page)
+                                .foregroundStyle(Color.white)
+                            Image(systemName: "chevron.down")
+                                .foregroundStyle(Color.white)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(Color.dark.opacity(0.9))
+                        .clipShape(Capsule())
                     }
-                    Button {
-                        page = "Video"
-                    } label: {
-                        Text("Video")
-                    }
-                    Button {
-                        page = "Upload"
-                    } label: {
-                        Text("Upload")
-                    }
-                } label: {
-                    HStack{
-                        Text(page)
-                            .foregroundStyle(Color.white)
-                        Image(systemName: "chevron.down")
-                            .foregroundStyle(Color.white)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(Color.dark.opacity(0.9))
-                    .clipShape(Capsule())
+                    Spacer()
+                    GroupPillSelectorElement()
                 }
+                
                 
                 if page == "Image" {
                     ImageView()
