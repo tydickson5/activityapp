@@ -20,7 +20,7 @@ struct AccountView: View {
             Form {
                 Section("Username"){
                     HStack{
-                        Text(authHandler.user!.username)
+                        Text(authHandler.user?.username ?? "")
                             
                     }
                     HStack{

@@ -17,10 +17,7 @@ final class GroupsHandler: ObservableObject {
         //original fetch
         await fetchMemberships(userId: user.id)
         await fetchGroups(userId: user.id)
-        
-        if(groups.isEmpty){
-            await joinGroup(userId: user.id, groupId: "6ce9c8f8-2ff2-4f12-8f74-19671fcfb265")
-        }
+    
         
         selectedGroup = user.selected_group
 
@@ -38,10 +35,14 @@ final class GroupsHandler: ObservableObject {
     }
     
     
-    func fetchGroups(userId: String) async{
+    func fetchGroups(userId: String) async {
         do {
             groups = []
+            var seen = Set<String>()
             for membership in memberships {
+                guard !seen.contains(membership.group_id) else { continue }
+                seen.insert(membership.group_id)
+                
                 let fetched: [Group] = try await SupabaseHandler.client
                     .from("groups")
                     .select()

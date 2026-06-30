@@ -16,6 +16,7 @@ struct SignUpView: View{
     @State var valid: Bool = false
     
     @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var groupHandler: GroupsHandler
     
     var body: some View {
         
@@ -36,7 +37,10 @@ struct SignUpView: View{
             Button(action: {
                 Task{
                     if(valid){
-                        await authHandler.signUp(email: email, password: password)
+                        if let userId = await authHandler.signUp(email: email, password: password) {
+                            await groupHandler.joinGroup(userId: userId, groupId: "6ce9c8f8-2ff2-4f12-8f74-19671fcfb265")
+                        }
+                    
                     } else {
                         ToastManager.shared.error("Invalid Password")
                     }

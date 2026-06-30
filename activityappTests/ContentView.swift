@@ -32,14 +32,14 @@ struct ContentView: View {
     var body: some View {
         
         
-        if(authHandler.isAuthenticated){
+        if authHandler.isAuthenticated, let user = authHandler.user{
             TabView{
                 HomeView().id(1)
                     .tabItem { Label("Map", systemImage: "map.fill") }
                     .onAppear{
                         Task{
-                            if let groupId = await groupHandler.loadGroups(user: authHandler.user!){
-                                await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupId)
+                            if let groupId = await groupHandler.loadGroups(user: user){
+                                await postHandler.getPosts(userId: user.id, groupId: groupId)
                             }
                             
                             print("POST COUNT:", postHandler.posts.count)

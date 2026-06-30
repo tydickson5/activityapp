@@ -38,13 +38,22 @@ class AuthHandler: ObservableObject {
             let token = currentSession.accessToken
 
             guard let data = await getUser(token: token) else {
+                if let cachedUser = loadCachedUser(){
+                    self.user = cachedUser
+                    self.isAuthenticated = true
+                    self.isLoading = false
+                    if let userId = cachedUser.id as String? {
+                        appDelegate?.uploadToken(userId: userId)
+                    }
+                    return
+                }
                 self.isAuthenticated = false
                 self.isLoading = false
                 return
             }
             
             self.user = try JSONDecoder().decode(AppUser.self, from: data)
-
+            cacheUser(self.user!)
             
             self.isLoading  = false
             self.isAuthenticated = true
@@ -54,14 +63,38 @@ class AuthHandler: ObservableObject {
             }
             
         } catch {
-            self.isAuthenticated = false
+            // session restore itself failed — try cache
+            if let cached = loadCachedUser() {
+                self.user = cached
+                self.isAuthenticated = true
+            } else {
+                self.isAuthenticated = false
+            }
+            self.isLoading = false
         }
         
+    }
+    
+    private func cacheUser(_ user: AppUser){
+        if let data = try? JSONEncoder().encode(user){
+            UserDefaults.standard.set(data, forKey: "cachedUser")
+        }
+    }
+    
+    private func loadCachedUser() -> AppUser? {
+        guard let data = UserDefaults.standard.data(forKey: "cachedUser"),
+              let user = try? JSONDecoder().decode(AppUser.self, from: data) else {
+            return nil
+        }
+        return user
     }
     
     func logout() {
         self.isAuthenticated = false
         self.isLoading = false
+        self.user = nil
+        self.session = nil
+        UserDefaults.standard.removeObject(forKey: "cachedUser")
     }
     
     func getUser(token: String) async -> Data? {
@@ -109,6 +142,7 @@ class AuthHandler: ObservableObject {
             self.user = decodedUser
             self.session = session
             self.isAuthenticated = true
+            cacheUser(decodedUser)
             ToastManager.shared.success("Welcome")
             
             appDelegate?.uploadToken(userId: decodedUser.id)
@@ -128,7 +162,7 @@ class AuthHandler: ObservableObject {
         }
     }
     
-    func signUp(email: String, password: String) async {
+    func signUp(email: String, password: String) async -> String?{
         do {
             let authResponse = try await SupabaseHandler.client.auth.signUp(
                 email: email,
@@ -137,13 +171,13 @@ class AuthHandler: ObservableObject {
 
             guard let session = authResponse.session else {
                 ToastManager.shared.error("Signup failed — no session returned")
-                return
+                return nil
             }
 
             let token = session.accessToken
 
             guard let data = await getUser(token: token) else {
-                return
+                return nil
             }
 
             self.user = try JSONDecoder().decode(AppUser.self, from: data)
@@ -152,20 +186,24 @@ class AuthHandler: ObservableObject {
             
             
             self.isAuthenticated = true
-
+            cacheUser(self.user!)
             ToastManager.shared.success("Account created")
             
             if let userId = user?.id {
                 appDelegate?.uploadToken(userId: userId)
             }
+            
+            return self.user?.id
 
         } catch let error as AuthError {
             self.errorMessage = error.message
             print(error)
             ToastManager.shared.error(error.message)
+            return nil
         } catch {
             self.errorMessage = error.localizedDescription
             ToastManager.shared.error("Signup failed")
+            return nil
         }
     }
     
