@@ -53,7 +53,9 @@ struct UploadView: View{
     @State private var postToPublic: Bool = false
     @State private var showAlert: Bool = false
     
-    //@State private var showCoords = false
+    @State private var showCoords = false
+    @State private var lat = 0.0
+    @State private var long = 0.0
     
     func makePost() async{
         guard (image != nil) else {
@@ -61,10 +63,12 @@ struct UploadView: View{
             return
         }
         
-        let latitude = photoLocation?.coordinate.latitude ?? locationHandler.latitude
-        let longitude = photoLocation?.coordinate.longitude ?? locationHandler.longitude
+        guard (lat != 0.0 || long != 0.0) else {
+            ToastManager.shared.error("Upload has no location. Attach your own")
+            return
+        }
         
-        await postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: latitude, longitude: longitude, isPublicPost: postToPublic)
+        await postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: lat, longitude: long, isPublicPost: postToPublic)
     }
     
     var body: some View {
@@ -117,6 +121,12 @@ struct UploadView: View{
 
                             // Try GPS directly from image metadata
                             photoLocation = locationFromImageData(data)
+                            lat = photoLocation?.coordinate.latitude ?? 0.0
+                            long = photoLocation?.coordinate.longitude ?? 0.0
+                            
+                            if(lat == 0){
+                                ToastManager.shared.error("Upload has no location. Attach your own")
+                            }
 
                             print("GPS from image:", photoLocation as Any)
                         }
@@ -147,6 +157,25 @@ struct UploadView: View{
                 
             }
             
+            //coords
+            HStack{
+                TextField("latitude", value: $lat,
+                          format: .number)
+                              .keyboardType(.numbersAndPunctuation)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.lightBlue.opacity(0.5), lineWidth: 2)
+                    )
+                TextField("longitude", value: $long,
+                          format: .number)
+                              .keyboardType(.numbersAndPunctuation)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.lightBlue.opacity(0.5), lineWidth: 2)
+                    )
+            }
             
             
             //submit button

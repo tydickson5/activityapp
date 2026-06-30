@@ -32,10 +32,7 @@ struct GroupView: View{
                     HStack{
                         TextField("Group Name", text: $newGroupName)
                             .padding(5)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.gray.opacity(0.5), lineWidth: 2)
-                            )
+
                         Spacer()
                         Button(action:{
                             
@@ -52,6 +49,7 @@ struct GroupView: View{
                         }){
                             Text("Create")
                                 .tint(.white)
+                                .frame(height:1)
                         }
                         .padding()
                         .background(
