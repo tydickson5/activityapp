@@ -104,7 +104,7 @@ struct VidView: View {
                     
                 }
             }){
-                Text("Post")
+                Text(postHandler.isLoading ? "Loading..." :"Post")
                     .frame(maxWidth: .infinity)
                     .frame(height: 20)
                     .tint(.white)

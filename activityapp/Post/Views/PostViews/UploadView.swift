@@ -156,6 +156,10 @@ struct UploadView: View{
                 }
                 
             }
+            HStack{
+                Text("Coordinates (be as specific as possible)")
+                Spacer()
+            }
             
             //coords
             HStack{
@@ -204,7 +208,7 @@ struct UploadView: View{
                     
                 }
             }){
-                Text("Post")
+                Text(postHandler.isLoading ? "Loading..." :"Post")
                     .frame(maxWidth: .infinity)
                     .frame(height: 20)
                     .tint(.white)
