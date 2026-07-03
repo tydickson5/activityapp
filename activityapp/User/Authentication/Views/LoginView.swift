@@ -53,6 +53,19 @@ struct LoginView: View{
                         .stroke(Color.dark.opacity(0.5), lineWidth: 2)
                 )
                 
+                HStack{
+                    Button("google"){
+                        Task{
+                            await authHandler.signInWithGoogle()
+                        }
+                    }
+                    Button("apple"){
+                        Task{
+                            await authHandler.signInWithApple()
+                        }
+                    }
+                }
+                
                 NavigationLink {
                     SignUpView()
                 } label: {

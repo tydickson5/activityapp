@@ -21,13 +21,23 @@ struct ContentView: View {
         )
     }
     
+    func processPostNotification(postId: String) {
+        Task {
+            if let post = await postHandler.getPost(postId: postId) {
+                await MainActor.run {
+                    navigationHandler.selectedPost = post
+                    appDelegate.pendingPostId = nil
+                }
+            }
+        }
+    }
+    
     @EnvironmentObject var authHandler: AuthHandler
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var postHandler: PostsHandler
     @EnvironmentObject var locationHandler: LocationHandler
+    @EnvironmentObject var navigationHandler: NavigationHandler
     
-    @State private var tappedPostId: String?
-    @State private var tappedPost: Post?
     
     var body: some View {
         
@@ -64,25 +74,28 @@ struct ContentView: View {
                     }
             }
             .tint(Color.dark)
+            .onAppear {
+                if let postId = appDelegate.pendingPostId {
+                    processPostNotification(postId: postId)
+                }
+            }
+            .onChange(of: authHandler.isAuthenticated) { _, authenticated in
+                guard authenticated else { return }
+
+                if let postId = appDelegate.pendingPostId {
+                    processPostNotification(postId: postId)
+                }
+            }
             .onReceive(NotificationCenter.default.publisher(for: .notificationTapped)) { notification in
                 print("🔥 Received notificationTapped")
 
                 if let postId = notification.userInfo?["postId"] as? String {
                     print("🔥 Post ID:", postId)
-
-                    Task {
-                        let post = await postHandler.getPost(postId: postId)
-                        print("🔥 Post:", post as Any)
-
-                        if let post {
-                            tappedPost = post
-                        }
-                    }
+                    processPostNotification(postId: postId)
                 }
             }
-            .sheet(item: $tappedPost) { post in
+            .sheet(item: $navigationHandler.selectedPost) { post in
                 PostDetailView(post: post)
-                    
             }
 
         }

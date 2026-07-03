@@ -65,7 +65,7 @@ struct PostView: View{
                     .padding()
                     .background(
                         Circle()
-                            .fill(Color.dark)
+                            .fill(Color.white)
                     )
             }
         }

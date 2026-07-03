@@ -37,7 +37,7 @@ struct MapElement: View {
                     Annotation("", coordinate: post.coordinate!) {
                         Image(systemName: "mappin")
                             .font(.title)
-                            .foregroundStyle(.dark)
+                            .foregroundStyle(Color.pin)
                             .frame(width: 50, height: 50)
                     }
 

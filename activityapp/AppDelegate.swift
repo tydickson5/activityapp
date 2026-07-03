@@ -13,6 +13,7 @@ class AppDelegate: NSObject,
                    UNUserNotificationCenterDelegate {
 
     private(set) var deviceToken: String?
+    var pendingPostId: String?
     
     weak var authHandler: AuthHandler? {
         didSet {
@@ -124,6 +125,7 @@ class AppDelegate: NSObject,
         print("Notification tapped:", userInfo)
 
         if let postId = userInfo["postId"] as? String {
+            pendingPostId = postId  // store it
             NotificationCenter.default.post(
                 name: .notificationTapped,
                 object: nil,

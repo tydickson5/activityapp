@@ -8,6 +8,7 @@ import SwiftUI
 internal import Combine
 internal import Auth
 import Supabase
+internal import System
 
 @MainActor
 class AuthHandler: ObservableObject {
@@ -122,46 +123,6 @@ class AuthHandler: ObservableObject {
         
     }
     
-    func signIn(email: String, password: String) async {
-        do {
-
-            let session = try await SupabaseHandler.client.auth.signIn(
-                email: email,
-                password: password
-            )
-
-            let token = session.accessToken
-
-            guard let data = await getUser(token: token) else {
-                return
-            }
-
-            let decodedUser = try JSONDecoder()
-                .decode(AppUser.self, from: data)
-
-            self.user = decodedUser
-            self.session = session
-            self.isAuthenticated = true
-            cacheUser(decodedUser)
-            ToastManager.shared.success("Welcome")
-            
-            appDelegate?.uploadToken(userId: decodedUser.id)
-
-
-
-        } catch let error as AuthError {
-            
-            self.errorMessage = error.message
-            print(error)
-            ToastManager.shared.error("Invalid Credentials")
-
-        } catch {
-
-            self.errorMessage = error.localizedDescription
-            ToastManager.shared.error("Invalid Credentials")
-        }
-    }
-    
     func signUp(email: String, password: String) async -> String?{
         do {
             let authResponse = try await SupabaseHandler.client.auth.signUp(
@@ -204,6 +165,89 @@ class AuthHandler: ObservableObject {
             self.errorMessage = error.localizedDescription
             ToastManager.shared.error("Signup failed")
             return nil
+        }
+    }
+    
+    func completeAuthLogin() async {
+        
+        do {
+            
+            let session = try await SupabaseHandler.client.auth.session
+            
+            let token = session.accessToken
+
+            guard let data = await getUser(token: token) else {
+                return
+            }
+
+            let decodedUser = try JSONDecoder()
+                .decode(AppUser.self, from: data)
+
+            self.user = decodedUser
+            self.session = session
+            self.isAuthenticated = true
+            cacheUser(decodedUser)
+            ToastManager.shared.success("Welcome")
+            
+            appDelegate?.uploadToken(userId: decodedUser.id)
+            
+        } catch {
+            print(error)
+            ToastManager.shared.error("Error Logging In")
+        }
+        
+    }
+    
+    func signIn(email: String, password: String) async {
+        do {
+
+            try await SupabaseHandler.client.auth.signIn(
+                email: email,
+                password: password
+            )
+
+            await completeAuthLogin()
+
+
+
+        } catch let error as AuthError {
+            
+            self.errorMessage = error.message
+            print(error)
+            ToastManager.shared.error("Invalid Credentials")
+
+        } catch {
+
+            self.errorMessage = error.localizedDescription
+            ToastManager.shared.error("Invalid Credentials")
+        }
+    }
+    
+    
+    
+    func signInWithGoogle() async {
+        do {
+            try await SupabaseHandler.client.auth.signInWithOAuth(
+                provider: .google,
+                redirectTo: URL(string: "caravyn://auth-callback")
+            )
+            await completeAuthLogin()
+        } catch {
+            ToastManager.shared.error("Google sign in failed")
+            print(error)
+        }
+    }
+    
+    func signInWithApple() async {
+        do {
+            try await SupabaseHandler.client.auth.signInWithOAuth(
+                provider: .apple,
+                redirectTo: URL(string: "caravyn://auth-callback")
+            )
+            await completeAuthLogin()
+        } catch {
+            ToastManager.shared.error("Apple sign in failed")
+            print(error)
         }
     }
     

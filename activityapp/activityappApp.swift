@@ -22,6 +22,7 @@ struct activityappApp: App {
     @StateObject private var groupHandler = GroupsHandler()
     @StateObject private var postHandler = PostsHandler()
     @StateObject private var locationHandler = LocationHandler()
+    @StateObject private var navigationHandler = NavigationHandler()
     
     var body: some Scene {
         WindowGroup {
@@ -30,6 +31,8 @@ struct activityappApp: App {
                 .environmentObject(groupHandler)
                 .environmentObject(postHandler)
                 .environmentObject(locationHandler)
+                .environmentObject(navigationHandler)
+                .environment(\.appDelegate, appDelegate)
                 .task {
                     await authHandler.loadSession()
                 }
@@ -41,6 +44,21 @@ struct activityappApp: App {
                 .onOpenURL { url in
                     Task{
                         print("OPEN URL:", url.absoluteString)
+                        
+                        // google/apple auth
+                        if(url.host == "auth-callback"){
+                            Task {
+                                do {
+                                    try await SupabaseHandler.client.auth.session(from: url)
+                                    print("Apple callback success")
+                                } catch {
+                                    print("Apple callback error:", error)
+                                }
+                                
+                                await authHandler.completeAuthLogin()
+                            }
+                            return
+                        }
 
                         // Password reset first
                         if url.host == "reset-password" ||
