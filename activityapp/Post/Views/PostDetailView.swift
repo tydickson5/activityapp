@@ -78,7 +78,10 @@ struct PostDetailView: View {
                 }
                 
             }
+            Text(post.caption)
+            Text(formattedDate(post.created_at))
         }
+        .padding()
         .task {
             guard post.media_type == "video" else { return }
             
@@ -91,8 +94,7 @@ struct PostDetailView: View {
         
         
         
-        Text(post.caption)
-        Text(formattedDate(post.created_at))
+        
 
     }
 }
