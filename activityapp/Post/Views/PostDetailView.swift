@@ -14,6 +14,7 @@ struct PostDetailView: View {
     
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var postHandler: PostsHandler
+    @EnvironmentObject var authHandler: AuthHandler
     
     @State private var player: AVPlayer?
     
@@ -92,9 +93,14 @@ struct PostDetailView: View {
             }
         }
         
-        
-        
-        
+        if(post.user_id == authHandler.user!.id){
+            Button(postHandler.isLoading ? "Deleting..." :"Delete Post"){
+                Task{
+                    await postHandler.deletePost(post: post)
+                }
+                
+            }
+        }
 
     }
 }

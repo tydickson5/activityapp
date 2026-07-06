@@ -18,6 +18,7 @@ final class PostsHandler: ObservableObject {
     @Published var posts: [Post] = []
     
     @Published var isLoading: Bool = false
+    @Published var isDeleteLoading: Bool = false
     
     func getPosts(userId: String, groupId: String) async{
         
@@ -219,8 +220,45 @@ final class PostsHandler: ObservableObject {
         
     }
     
-    func deletePost(){
+    func deletePost(post: Post) async {
         
+        isDeleteLoading = true
+        
+        var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/posts/delete")!)
+        request.httpMethod = "POST"
+        
+        do {
+            let token = try await SupabaseHandler.client.auth.session.accessToken
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let body: [String: Any] = [
+                "post_id": post.id,
+                "post_type": post.media_type,
+                "bucket_path": post.media_url!
+            ]
+            
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            if let httpResponse = response as? HTTPURLResponse {
+                print("Status code:", httpResponse.statusCode)
+                print("Body:", String(data: data, encoding: .utf8) ?? "no body")
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) {
+                posts.removeAll { $0.id == post.id }
+                ToastManager.shared.success("Post deleted")
+            } else {
+                ToastManager.shared.error("Failed to delete post")
+            }
+            
+        } catch {
+            print("Delete error:", error)
+            ToastManager.shared.error("Failed to delete post")
+        }
+        
+        isDeleteLoading = false
     }
     
     func uploadImage(image: UIImage, userId: String, postId: String) async throws -> String{
