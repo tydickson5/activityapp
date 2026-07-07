@@ -210,4 +210,25 @@ final class GroupsHandler: ObservableObject {
             return ""
         }
     }
+    
+    func getGroupMembers(group: Group) async -> [AppUser] {
+        do{
+            
+            let fetchedMembers: [GroupMember] = try await SupabaseHandler.client.from("group_memberships").select().eq("group_id", value: group.id)
+                .execute()
+                .value
+            
+            var members: [AppUser] = []
+            for fetchedMember in fetchedMembers{
+                let user: AppUser = try await SupabaseHandler.client.from("profiles").select().eq("id", value: fetchedMember.user_id).single().execute().value
+                members.append(user)
+                
+            }
+            
+            return members
+        } catch{
+            print(error)
+            return []
+        }
+    }
 }

@@ -81,6 +81,27 @@ struct PostDetailView: View {
             }
             Text(post.caption)
             Text(formattedDate(post.created_at))
+            
+            if(post.user_id == authHandler.user!.id){
+                Button(action: {
+                    Task{
+                        await postHandler.deletePost(post: post)
+                    }
+                }){
+                    Text(postHandler.isLoading ? "Deleting..." :"Delete Post")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 20)
+                        .tint(.white)
+                    
+                    
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.red)
+                        .stroke(Color.red.opacity(0.5), lineWidth: 2)
+                )
+            }
         }
         .padding()
         .task {
@@ -93,14 +114,7 @@ struct PostDetailView: View {
             }
         }
         
-        if(post.user_id == authHandler.user!.id){
-            Button(postHandler.isLoading ? "Deleting..." :"Delete Post"){
-                Task{
-                    await postHandler.deletePost(post: post)
-                }
-                
-            }
-        }
+        
 
     }
 }

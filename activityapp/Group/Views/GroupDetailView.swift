@@ -9,6 +9,7 @@ import SwiftUI
 struct GroupDetailView: View {
     
     var group: Group
+    @State private var members: [AppUser] = []
     
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
@@ -39,7 +40,7 @@ struct GroupDetailView: View {
                         }
                     }
                     ShareLink(
-                        item: URL(string: "https://caravyn.com/group/\(group.id)")!
+                        item: "Join \(group.name) https://caravyn.com/group/\(group.id)"
                     ) {
                         Label("Share group", systemImage: "square.and.arrow.up")
                             .foregroundStyle(Color.lightBlue)
@@ -47,7 +48,19 @@ struct GroupDetailView: View {
                     .tint(Color.lightBlue)
                 }
 
+                Section("Members"){
+                    ForEach(members, id: \.id) { member in
+                                        HStack {
+                                            Text(member.username)
+                                        }
+                                    }
+                }
             }
+            .task {
+                members = await groupHandler.getGroupMembers(group: group)
+                print(members)
+            }
+    
         }
     }
 }
