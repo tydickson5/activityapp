@@ -25,6 +25,8 @@ struct PostDetailView: View {
     @EnvironmentObject var authHandler: AuthHandler
     var likeHander = LikesHandler()
     
+    @State private var presentDeleteAlert: Bool = false
+    
     
     @State private var player: AVPlayer?
     
@@ -190,9 +192,7 @@ struct PostDetailView: View {
                 
                 if(post.user_id == authHandler.user!.id){
                     Button(action: {
-                        Task{
-                            await postHandler.deletePost(post: post)
-                        }
+                        presentDeleteAlert.toggle()
                     }){
                         Text(postHandler.isLoading ? "Deleting..." :"Delete Post")
                             .frame(maxWidth: .infinity)
@@ -207,6 +207,16 @@ struct PostDetailView: View {
                             .fill(.red)
                             .stroke(Color.red.opacity(0.5), lineWidth: 2)
                     )
+                    .alert(isPresented: $presentDeleteAlert){
+                        Alert(title: Text("Delete Post"), message: Text("Are you sure you want to delete this post?"), primaryButton: .destructive(Text("Delete")){
+                            Task{
+                                Task{
+                                    await postHandler.deletePost(post: post)
+                                }
+                            }
+                        }, secondaryButton: .cancel())
+                    }
+                    
                 }
             }
             .padding()

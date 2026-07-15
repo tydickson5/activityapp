@@ -47,6 +47,7 @@ struct ButtonsElement: View {
         .fixedSize()
         .padding(.top, 0)
         .padding(.trailing, 16)
+
     }
     
 }
