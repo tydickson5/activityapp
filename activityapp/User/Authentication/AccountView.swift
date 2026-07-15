@@ -47,6 +47,14 @@ struct AccountView: View {
                     }
                     
                 }
+                Section("Default view when openning app"){
+                    DefaultView()
+                }
+                Section("Share app"){
+                    HStack{
+                        NavigationLink("Share App", destination: ShareAppView())
+                    }
+                }
                 Section("Account"){
 
                     Button(action:{
@@ -56,6 +64,7 @@ struct AccountView: View {
                             Text("Log out")
                             Spacer()
                             Image(systemName: "chevron.right")
+                                
                         }
                         .tint(Color.red)
                         
@@ -68,6 +77,7 @@ struct AccountView: View {
                         }, secondaryButton: .cancel())
                     }
                 }
+                
             }
         }
         

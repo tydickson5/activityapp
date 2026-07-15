@@ -47,7 +47,7 @@ struct GroupView: View{
                                 }
                             }
                         }){
-                            Text("Create")
+                            Text(groupHandler.creatingGroup ? "Loading..." :"Create")
                                 .tint(.white)
                                 .frame(height:1)
                         }

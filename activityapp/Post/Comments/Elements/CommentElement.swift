@@ -1,0 +1,48 @@
+//
+//  CommentElement.swift
+//  caravyn
+//
+//  Created by Ty Dickson on 7/15/26.
+//
+
+import SwiftUI
+
+struct CommentElement: View{
+    
+    func formattedDate(_ isoString: String) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        guard let date = formatter.date(from: isoString) else {
+            return isoString
+        }
+
+        let output = DateFormatter()
+        output.dateStyle = .medium
+        output.timeStyle = .short
+
+        return output.string(from: date)
+    }
+    
+    @EnvironmentObject var authHandler: AuthHandler
+    var commentHandler = CommentHandler()
+    
+    var comment: Comment
+    
+    @State var username: String = "Loading..."
+    
+    var body: some View{
+        HStack{
+            Text(username)
+                .font(.caption)
+
+            Spacer()
+            Text(formattedDate(comment.created_at))
+                .font(.caption)
+        }
+        .task{
+            username = await authHandler.getOtherUserFromId(id: comment.user_id)!.username
+        }
+       
+    }
+}

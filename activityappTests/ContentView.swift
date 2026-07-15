@@ -38,65 +38,88 @@ struct ContentView: View {
     @EnvironmentObject var locationHandler: LocationHandler
     @EnvironmentObject var navigationHandler: NavigationHandler
     
+    @State var userView = 0
     
     var body: some View {
         
         
         if authHandler.isAuthenticated, let user = authHandler.user{
-            TabView{
-                HomeView().id(1)
-                    .tabItem { Label("Map", systemImage: "map.fill") }
-                    .onAppear{
-                        Task{
-                            if let groupId = await groupHandler.loadGroups(user: user){
-                                await postHandler.getPosts(userId: user.id, groupId: groupId)
-                            }
-                            
-                            print("POST COUNT:", postHandler.posts.count)
-                        }
-                    }
-                    .environmentObject(groupHandler)
-
-                
-                PostView()
-                    .tabItem { Label("Posts",
-                        systemImage: "plus")}
-                    .environmentObject(groupHandler)
-                    .environmentObject(postHandler)
+            if(authHandler.needsOnboarding){
+                PermissionsOnboardView(onComplete: {
+                        authHandler.needsOnboarding = false
+                    })
+                    .environmentObject(authHandler)
                     .environmentObject(locationHandler)
-                GroupView()
-                    .tabItem { Label("Groups",
-                        systemImage: "person.2.fill")}
-                    .environmentObject(groupHandler)
-                AccountView()
-                    .tabItem{
-                        Label("Account", systemImage: "person.crop.circle.fill")
+            } else {
+                TabView(selection: $userView){
+                    HomeView().id(1)
+                        .tabItem { Label("Map", systemImage: "map.fill") }
+                        .tag(0)
+                        .onAppear{
+                            Task{
+                                if let groupId = await groupHandler.loadGroups(user: user){
+                                    await postHandler.getPosts(userId: user.id, groupId: groupId)
+                                }
+                                
+                                print("POST COUNT:", postHandler.posts.count)
+                            }
+                        }
+                        .environmentObject(groupHandler)
+
+                    
+                    PostView()
+                        .tabItem { Label("Posts",
+                            systemImage: "plus")}
+                        .tag(1)
+                        .environmentObject(groupHandler)
+                        .environmentObject(postHandler)
+                        .environmentObject(authHandler)
+                        .environmentObject(locationHandler)
+                    GroupView()
+                        .tabItem { Label("Groups",
+                            systemImage: "person.2.fill")}
+                        .tag(2)
+                        .environmentObject(groupHandler)
+                    AccountView()
+                        .tabItem{
+                            Label("Account", systemImage: "person.crop.circle.fill")
+                        }
+                        .tag(3)
+                }
+                .tint(Color.dark)
+                .onAppear {
+                    if let postId = appDelegate.pendingPostId {
+                        processPostNotification(postId: postId)
                     }
-            }
-            .tint(Color.dark)
-            .onAppear {
-                if let postId = appDelegate.pendingPostId {
-                    processPostNotification(postId: postId)
+                    
                 }
-            }
-            .onChange(of: authHandler.isAuthenticated) { _, authenticated in
-                guard authenticated else { return }
+                .onChange(of: authHandler.isAuthenticated) { _, authenticated in
+                    guard authenticated else { return }
 
-                if let postId = appDelegate.pendingPostId {
-                    processPostNotification(postId: postId)
+                    if let postId = appDelegate.pendingPostId {
+                        processPostNotification(postId: postId)
+                    }
                 }
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .notificationTapped)) { notification in
-                print("🔥 Received notificationTapped")
+                .onReceive(NotificationCenter.default.publisher(for: .notificationTapped)) { notification in
+                    print("🔥 Received notificationTapped")
 
-                if let postId = notification.userInfo?["postId"] as? String {
-                    print("🔥 Post ID:", postId)
-                    processPostNotification(postId: postId)
+                    if let postId = notification.userInfo?["postId"] as? String {
+                        print("🔥 Post ID:", postId)
+                        processPostNotification(postId: postId)
+                    }
+                }
+                .sheet(item: $navigationHandler.selectedPost) { post in
+                    PostDetailView(post: post)
+                }
+                .task {
+                    if(authHandler.user!.user_default_view == "home"){
+                        userView = 0
+                    } else {
+                        userView = 1
+                    }
                 }
             }
-            .sheet(item: $navigationHandler.selectedPost) { post in
-                PostDetailView(post: post)
-            }
+            
 
         }
         else{

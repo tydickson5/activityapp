@@ -9,6 +9,7 @@ final class GroupsHandler: ObservableObject {
     
     @Published var groups: [Group] = []
     @Published var selectedGroup: String? = "6ce9c8f8-2ff2-4f12-8f74-19671fcfb265"
+    @Published var creatingGroup: Bool = false
     
     private var memberships: [GroupMember] = []
     
@@ -90,7 +91,7 @@ final class GroupsHandler: ObservableObject {
     }
     
     func createGroup(userId: String, name: String)async ->String? {
-        
+        self.creatingGroup
         if(name == ""){
             ToastManager.shared.error("Add your group name")
             return nil
@@ -102,7 +103,7 @@ final class GroupsHandler: ObservableObject {
             
             request.httpMethod = "POST"
             
-            var token = try await SupabaseHandler.client.auth.session.accessToken
+            let token = try await SupabaseHandler.client.auth.session.accessToken
             request.setValue(
                 "Bearer \(token)",
                 forHTTPHeaderField: "Authorization")
@@ -123,7 +124,7 @@ final class GroupsHandler: ObservableObject {
                 )
 
 
-            let (data, response) =
+            let (data, _) =
                 try await URLSession.shared.data(
                     for: request
                 )
@@ -140,13 +141,14 @@ final class GroupsHandler: ObservableObject {
             ToastManager.shared.success("Group created successfully")
             await self.updatedSelectedGroup(userId: userId, groupId: membership.group_id)
             self.selectedGroup = membership.group_id
-            
+            self.creatingGroup = false
             return membership.group_id
 
                 
             
         } catch {
             print(error)
+            self.creatingGroup = false
             ToastManager.shared.error("Group creation failed")
             return nil
         }

@@ -9,6 +9,7 @@ import SwiftUI
 struct PostElement: View {
     
     let post: Post
+    let type: Bool
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var postHandler: PostsHandler
     
@@ -40,11 +41,11 @@ struct PostElement: View {
                     }
                 }
                 .padding(3)
-                .background(Color.white)
+                .background(type ? Color.lightBlue : Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14)
-                        .stroke(Color.white.opacity(0.8), lineWidth: 1.5)
+                        .stroke(type ? Color.lightBlue.opacity(0.8) : Color.white.opacity(0.8), lineWidth: 1.5)
                 )
                 .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                 

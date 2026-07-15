@@ -17,6 +17,7 @@ struct Post: Codable, Identifiable {
     var latitude: Double?
     var longitude: Double?
     var created_at: String
+    var post_likes: Int
     
     var coordinate: CLLocationCoordinate2D?{
         guard let latitude, let longitude else{

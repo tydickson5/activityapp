@@ -12,7 +12,7 @@ struct ButtonsElement: View {
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
     @EnvironmentObject var postHandler: PostsHandler
-    var locationManager: LocationManager
+    var locationManager: LocationHandler
     
     var body: some View {
         VStack(spacing: 12){

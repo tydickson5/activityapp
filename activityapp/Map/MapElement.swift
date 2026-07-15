@@ -11,21 +11,42 @@ struct MapElement: View {
     
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
-    @StateObject var locationManager =  LocationManager()
+    @StateObject var locationManager =  LocationHandler()
     @EnvironmentObject var postHandler: PostsHandler  // add this
     
     
     @State private var position: MapCameraPosition = .automatic
     @State private var zoomLevel: Double = 112.60658752186015
     
+    func isLessThanOneDayOld(_ timestamp: String) -> Bool {
+        let formats = [
+            "yyyy-MM-dd HH:mm:ss.SSSSSSX",
+            "yyyy-MM-dd HH:mm:ssX",
+            "yyyy-MM-dd'T'HH:mm:ss.SSSSSSX",
+            "yyyy-MM-dd'T'HH:mm:ssX"
+        ]
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+
+        for format in formats {
+            formatter.dateFormat = format
+            if let date = formatter.date(from: timestamp) {
+                return Date().timeIntervalSince(date) < 86400
+            }
+        }
+
+        return false
+    }
+    
     var body: some View {
         Map(position: $position) {
             ForEach(postHandler.posts.filter { $0.coordinate != nil }) { post in
 
-                if zoomLevel < 0.30 {
+                if zoomLevel < 0.30 || isLessThanOneDayOld(post.created_at) {
 
                     Annotation("", coordinate: post.coordinate!) {
-                        PostElement(post: post)
+                        PostElement(post: post, type: isLessThanOneDayOld(post.created_at))
                             .environmentObject(postHandler)
                     }
 

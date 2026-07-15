@@ -18,6 +18,8 @@ struct VidView: View {
     @State private var thumbnail: UIImage?
     @State private var showVideo = false
     
+    @State private var openOnView: Bool?
+    
     @State private var caption: String = ""
     
     @State private var postToPublic: Bool = false
@@ -140,5 +142,6 @@ struct VidView: View {
                 showVideo = false
             }
         }
+
     }
 }

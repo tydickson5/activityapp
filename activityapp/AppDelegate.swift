@@ -31,12 +31,7 @@ class AppDelegate: NSObject,
         [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
-        UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in
-                DispatchQueue.main.async {
-                    UIApplication.shared.registerForRemoteNotifications()
-                }
-            }
+        
         return true
     }
 

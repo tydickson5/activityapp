@@ -12,7 +12,10 @@ struct PostView: View{
     
     @EnvironmentObject var postHandler: PostsHandler
     
-    @State private var page = "Image"
+    @EnvironmentObject var authHandler: AuthHandler
+    
+    @State private var page = "image"
+    @State private var openOnLoad = false
     
     var body: some View{
         ZStack{
@@ -20,17 +23,17 @@ struct PostView: View{
                 HStack{
                     Menu{
                         Button {
-                            page = "Image"
+                            page = "image"
                         } label: {
                             Text("Image")
                         }
                         Button {
-                            page = "Video"
+                            page = "video"
                         } label: {
                             Text("Video")
                         }
                         Button {
-                            page = "Upload"
+                            page = "upload"
                         } label: {
                             Text("Upload")
                         }
@@ -51,9 +54,9 @@ struct PostView: View{
                 }
                 
                 
-                if page == "Image" {
+                if page == "image" {
                     ImageView()
-                } else if page == "Video" {
+                } else if page == "video" {
                     VidView()
                 } else {
                     UploadView()
@@ -69,7 +72,15 @@ struct PostView: View{
                     )
             }
         }
-        
+        .task{
+            if(authHandler.user!.user_default_view == "home"){
+                page = "image"
+            } else {
+                page = authHandler.user!.user_default_view
+                openOnLoad = true
+            }
+            
+        }
         
         
         

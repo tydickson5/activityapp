@@ -28,7 +28,7 @@ final class PostsHandler: ObservableObject {
                 .from("posts")
                 .select()
                 .eq("group_id", value: groupId)
-                .order("created_at", ascending: false)
+                .order("created_at", ascending: true)
                 .execute()
                 .value
             
@@ -348,4 +348,9 @@ final class PostsHandler: ObservableObject {
         return false
     }
     
+    func updatePostLikeCount(postId: String, likes: Int){
+        if let index = posts.firstIndex(where: { $0.id == postId }) {
+            posts[index].post_likes = likes
+        }
+    }
 }

@@ -10,4 +10,5 @@ struct AppUser: Codable {
     var username: String
     var created_at: String
     var selected_group: String
+    var user_default_view: String
 }

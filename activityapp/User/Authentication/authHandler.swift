@@ -19,6 +19,9 @@ class AuthHandler: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    @Published var needsOnboarding: Bool = false
+
+    
     weak var appDelegate: AppDelegate? {
         didSet {
             if isAuthenticated, let userId = user?.id {
@@ -42,10 +45,12 @@ class AuthHandler: ObservableObject {
                 if let cachedUser = loadCachedUser(){
                     self.user = cachedUser
                     self.isAuthenticated = true
+                    
                     self.isLoading = false
                     if let userId = cachedUser.id as String? {
                         appDelegate?.uploadToken(userId: userId)
                     }
+                    checkOnboardingStatus()
                     return
                 }
                 self.isAuthenticated = false
@@ -62,18 +67,26 @@ class AuthHandler: ObservableObject {
             if let userId = user?.id {
                 appDelegate?.uploadToken(userId: userId)
             }
+            checkOnboardingStatus()
             
         } catch {
             // session restore itself failed — try cache
             if let cached = loadCachedUser() {
                 self.user = cached
                 self.isAuthenticated = true
+                checkOnboardingStatus()
             } else {
                 self.isAuthenticated = false
             }
             self.isLoading = false
         }
         
+    }
+    
+    func checkOnboardingStatus() {
+        guard let userId = user?.id else { return }
+        let seen = UserDefaults.standard.bool(forKey: "hasSeenOnboarding_\(userId)")
+        needsOnboarding = !seen
     }
     
     private func cacheUser(_ user: AppUser){
@@ -153,6 +166,7 @@ class AuthHandler: ObservableObject {
             if let userId = user?.id {
                 appDelegate?.uploadToken(userId: userId)
             }
+            checkOnboardingStatus()
             
             return self.user?.id
 
@@ -190,7 +204,7 @@ class AuthHandler: ObservableObject {
             ToastManager.shared.success("Welcome")
             
             appDelegate?.uploadToken(userId: decodedUser.id)
-            
+            checkOnboardingStatus()
         } catch {
             print(error)
             ToastManager.shared.error("Error Logging In")
@@ -304,6 +318,36 @@ class AuthHandler: ObservableObject {
         } catch {
             ToastManager.shared.error("Failed to refresh page")
             print(error)
+        }
+    }
+    
+    func updateDefaultView(view: String) async {
+        do {
+            try await SupabaseHandler.client.from("profiles")
+                .update(["user_default_view": view])
+                .eq("id", value: self.user!.id)
+                .execute()
+            
+            self.user!.user_default_view = view
+        } catch {
+            ToastManager.shared.error("Failed to update default view")
+        }
+    }
+    
+    func getOtherUserFromId(id: String) async -> AppUser? {
+        do {
+            let fetched: AppUser = try await SupabaseHandler.client
+                .from("profiles")
+                .select("*")
+                .eq("id", value: id)
+                .single()
+                .execute()
+                .value
+            
+            return fetched
+        } catch {
+            print(error)
+            return nil
         }
     }
 }

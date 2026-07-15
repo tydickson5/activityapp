@@ -15,48 +15,50 @@ final class LocationHandler:
     ObservableObject,
     CLLocationManagerDelegate {
 
-    private let manager =
-        CLLocationManager()
+    private let manager = CLLocationManager()
 
-    @Published var latitude = 0.0
+    @Published var location: CLLocation?
+    @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
 
-    @Published var longitude = 0.0
+    var latitude: Double { location?.coordinate.latitude ?? 0.0 }
+    var longitude: Double { location?.coordinate.longitude ?? 0.0 }
+
+    var isAuthorized: Bool {
+        authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways
+    }
 
     override init() {
-
         super.init()
 
-        manager.delegate =
-            self
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyBest
+        authorizationStatus = manager.authorizationStatus
+        // No automatic permission request here — call requestPermission()
+        // explicitly from PermissionsOnboardingView.
+    }
 
+    func requestPermission() {
         manager.requestWhenInUseAuthorization()
+    }
 
+    func recenter() {
         manager.startUpdatingLocation()
     }
 
-    func locationManager(
-        _ manager:
-            CLLocationManager,
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        authorizationStatus = manager.authorizationStatus
 
-        didUpdateLocations
-        locations:
-            [CLLocation]
-    ) {
-
-        guard let location =
-            locations.last
-        else {
-            return
+        if isAuthorized {
+            manager.startUpdatingLocation()
         }
+    }
 
-        latitude =
-            location
-            .coordinate
-            .latitude
-
-        longitude =
-            location
-            .coordinate
-            .longitude
+    func locationManager(
+        _ manager: CLLocationManager,
+        didUpdateLocations locations: [CLLocation]
+    ) {
+        guard let latest = locations.last, latest.horizontalAccuracy < 100 else { return }
+        location = latest
+        manager.stopUpdatingLocation()
     }
 }
