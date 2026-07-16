@@ -39,10 +39,8 @@ final class GroupsHandler: ObservableObject {
     func fetchGroups(userId: String) async {
         do {
             groups = []
-            var seen = Set<String>()
+            
             for membership in memberships {
-                guard !seen.contains(membership.group_id) else { continue }
-                seen.insert(membership.group_id)
                 
                 let fetched: [Group] = try await SupabaseHandler.client
                     .from("groups")

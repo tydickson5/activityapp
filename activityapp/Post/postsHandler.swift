@@ -28,7 +28,7 @@ final class PostsHandler: ObservableObject {
                 .from("posts")
                 .select()
                 .eq("group_id", value: groupId)
-                .order("created_at", ascending: true)
+                .order("created_at", ascending: false)
                 .execute()
                 .value
             

@@ -48,6 +48,4 @@ struct ShareAppView: View{
         
     }
 }
-#Preview {
-    ShareAppView()
-}
+

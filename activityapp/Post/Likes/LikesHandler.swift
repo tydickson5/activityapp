@@ -81,10 +81,6 @@ final class LikesHandler {
             request.httpBody = try? JSONSerialization.data(withJSONObject: body)
             let (data, response) = try await URLSession.shared.data(for: request)
             
-            //update post
-            _ = try await SupabaseHandler.client.from("posts").update(["post_likes": likes + 1]).eq("id", value: postId).execute()
-            
-            
             
         } catch {
             print(error)
@@ -92,15 +88,25 @@ final class LikesHandler {
         
     }
     
-    func unlikePost(postId: String, likes: Int) async {
+    func unlikePost(postId: String, likeId: String, likes: Int) async {
         
         do {
             
-            //update post
-            _ = try await SupabaseHandler.client.from("posts").update(["post_likes": likes - 1]).eq("id", value: postId).execute()
+            var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/likes/delete")!)
             
-            //delete like
-            _ = try await SupabaseHandler.client.from("post_likes").delete().eq("post_id", value: postId).execute()
+            request.httpMethod = "POST"
+            let token = try await SupabaseHandler.client.auth.session.accessToken
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let body: [String: Any] = [
+                "postId": postId,
+                "likeId": likeId,
+                "postLikes": likes
+            ]
+            
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+            let (data, response) = try await URLSession.shared.data(for: request)
             
         } catch {
             print(error)
