@@ -88,7 +88,7 @@ final class LikesHandler {
         
     }
     
-    func unlikePost(postId: String, likeId: String, likes: Int) async {
+    func unlikePost(postId: String, userId: String, likes: Int) async {
         
         do {
             
@@ -101,7 +101,7 @@ final class LikesHandler {
             
             let body: [String: Any] = [
                 "postId": postId,
-                "likeId": likeId,
+                "userId": userId,
                 "postLikes": likes
             ]
             

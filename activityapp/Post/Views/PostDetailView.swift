@@ -118,7 +118,7 @@ struct PostDetailView: View {
                         if(liked){
                             Button(action:{
                                 Task{
-                                    await likeHander.unlikePost(postId: post.id, likes: post.post_likes)
+                                    await likeHander.unlikePost(postId: post.id, userId: authHandler.user!.id,likes: post.post_likes-1)
                                     postHandler.updatePostLikeCount(postId: post.id, likes: post.post_likes - 1)
                                 }
                                 self.liked = false
@@ -129,7 +129,7 @@ struct PostDetailView: View {
                         } else{
                             Button(action: {
                                 Task{
-                                    await likeHander.likePost(postId: post.id, likes: post.post_likes, userId: authHandler.user!.id)
+                                    await likeHander.likePost(postId: post.id, likes: post.post_likes+1, userId: authHandler.user!.id)
                                     postHandler.updatePostLikeCount(postId: post.id, likes: post.post_likes + 1)
                                 }
                                 self.liked = true
