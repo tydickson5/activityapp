@@ -12,18 +12,24 @@ final class GroupsHandler: ObservableObject {
     @Published var creatingGroup: Bool = false
     
     private var memberships: [GroupMember] = []
-    
+    private var loadTask: Task<String?, Never>?
         
-    func loadGroups(user: AppUser) async -> String?{
-        //original fetch
-        await fetchMemberships(userId: user.id)
-        await fetchGroups(userId: user.id)
-    
+    func loadGroups(user: AppUser) async -> String? {
+        // if a load is already in progress, just wait on that one instead of starting a new one
+        if let existing = loadTask {
+            return await existing.value
+        }
         
-        selectedGroup = user.selected_group
-
-        return selectedGroup
-        
+        let task = Task<String?, Never> {
+            await fetchMemberships(userId: user.id)
+            await fetchGroups(userId: user.id)
+            self.selectedGroup = user.selected_group
+            return user.selected_group
+        }
+        loadTask = task
+        let result = await task.value
+        loadTask = nil
+        return result
     }
     
     func fetchGroupName(groupId: String) -> String?{
@@ -38,7 +44,7 @@ final class GroupsHandler: ObservableObject {
     
     func fetchGroups(userId: String) async {
         do {
-            groups = []
+            var result: [Group] = []
             
             for membership in memberships {
                 
@@ -49,8 +55,11 @@ final class GroupsHandler: ObservableObject {
                     .execute()
                     .value
                 
-                self.groups.append(contentsOf: fetched)
+                result.append(contentsOf: fetched)
             }
+            
+            var seen = Set<String>()
+            groups = result.filter { seen.insert($0.id).inserted }
         } catch {
             print("Failed to fetch groups:", error)
         }
