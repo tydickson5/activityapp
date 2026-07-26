@@ -37,6 +37,7 @@ struct ContentView: View {
     @EnvironmentObject var postHandler: PostsHandler
     @EnvironmentObject var locationHandler: LocationHandler
     @EnvironmentObject var navigationHandler: NavigationHandler
+    @EnvironmentObject var friendHandler: FriendHandler
     
     @State var userView = 0
     
@@ -80,6 +81,11 @@ struct ContentView: View {
                             systemImage: "person.2.fill")}
                         .tag(2)
                         .environmentObject(groupHandler)
+                    FriendsView()
+                        .tabItem { Label("Friends",systemImage: "person")
+                        }
+                        .tag(4)
+                        .environmentObject(friendHandler)
                     AccountView()
                         .tabItem{
                             Label("Account", systemImage: "person.crop.circle.fill")

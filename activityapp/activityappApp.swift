@@ -23,6 +23,7 @@ struct activityappApp: App {
     @StateObject private var postHandler = PostsHandler()
     @StateObject private var locationHandler = LocationHandler()
     @StateObject private var navigationHandler = NavigationHandler()
+    @StateObject private var friendHandler = FriendHandler()
     
     var body: some Scene {
         WindowGroup {
@@ -32,6 +33,7 @@ struct activityappApp: App {
                 .environmentObject(postHandler)
                 .environmentObject(locationHandler)
                 .environmentObject(navigationHandler)
+                .environmentObject(friendHandler)
                 .environment(\.appDelegate, appDelegate)
                 .task {
                     await authHandler.loadSession()
