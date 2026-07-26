@@ -28,7 +28,7 @@ final class FriendHandler: ObservableObject {
         }
         
         do {
-            var body: [String: Any] = [
+            let body: [String: Any] = [
                 "userId": userId,
                 "friendId": friendId,
                 "friendUsername": friendUsername
@@ -60,8 +60,44 @@ final class FriendHandler: ObservableObject {
         }
     }
     
-    func deleteFriendRequest(){
+    func deleteFriendRequest(friendRequestId: String) async {
         
+        if(!friendRequests.contains{$0.id == friendRequestId}){
+            ToastManager.shared.error("Error")
+            return
+        }
+        
+        do {
+            let body: [String: Any] = [
+                "id": friendRequestId
+            ]
+            
+            guard let request = await loadHttpRequest(
+                path: "friends/deleteRequest",
+                body: body
+            ) else {
+                ToastManager.shared.error("Failed to create request")
+                return
+            }
+            
+            let (_, response) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                return
+            }
+
+            if (200...299).contains(httpResponse.statusCode) {
+                friendRequests.removeAll { $0.id == friendRequestId }
+                ToastManager.shared.error("Success")
+                return
+            }
+            
+            ToastManager.shared.error("Error")
+            
+        } catch {
+            print(error)
+            ToastManager.shared.error("Error")
+        }
     }
     
     func acceptFriendRequest(){
