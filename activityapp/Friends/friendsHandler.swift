@@ -17,7 +17,7 @@ final class FriendHandler: ObservableObject {
     @Published var friendRequests: [FriendRequest] = []
     
     
-    func loadFriends(){
+    func loadFriends(user: AppUser){
         
     }
     

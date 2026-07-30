@@ -20,19 +20,27 @@ final class PostsHandler: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var isDeleteLoading: Bool = false
     
-    func getPosts(userId: String, groupId: String) async{
+    @Published var postType: String = "Friends"
+    
+    func getPosts(userId: String, friends: [Friend]) async{
         
         do {
             
-            let fetched: [Post] = try await SupabaseHandler.client
-                .from("posts")
-                .select()
-                .eq("group_id", value: groupId)
-                .order("created_at", ascending: false)
-                .execute()
-                .value
+            if(postType == "friends"){
+                //get friends posts
+                
+            } else {
+                let fetched: [Post] = try await SupabaseHandler.client
+                    .from("posts")
+                    .select()
+                    .order("created_at", ascending: false)
+                    .execute()
+                    .value
+                
+                posts.append(contentsOf: fetched)
+            }
             
-            posts = fetched
+            
         } catch {
             print(error)
         }

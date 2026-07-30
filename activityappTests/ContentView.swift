@@ -58,9 +58,10 @@ struct ContentView: View {
                         .tag(0)
                         .onAppear{
                             Task{
-                                if let groupId = await groupHandler.loadGroups(user: user){
-                                    await postHandler.getPosts(userId: user.id, groupId: groupId)
-                                }
+                                
+                                await friendHandler.loadFriends(user: user)
+                                
+                                await postHandler.getPosts(userId: user.id, friends: friendHandler.friends)
                                 
                                 print("POST COUNT:", postHandler.posts.count)
                             }
