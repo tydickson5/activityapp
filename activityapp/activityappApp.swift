@@ -106,7 +106,7 @@ struct activityappApp: App {
                         ){
                             authHandler.user?.selected_group = groupId
                             
-                            await postHandler.getPosts(userId: authHandler.user!.id, groupId: authHandler.user!.selected_group)
+                            await postHandler.getPosts(userId: authHandler.user!.id, friends: friendHandler.friends)
                         }
                         
                         

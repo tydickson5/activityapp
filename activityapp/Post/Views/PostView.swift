@@ -50,7 +50,6 @@ struct PostView: View{
                         .clipShape(Capsule())
                     }
                     Spacer()
-                    GroupPillSelectorElement()
                 }
                 
                 

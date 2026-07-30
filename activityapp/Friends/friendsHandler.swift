@@ -13,17 +13,79 @@ import Supabase
 @MainActor
 final class FriendHandler: ObservableObject {
     
+    
+    
     @Published var friends: [Friend] = []
     @Published var friendRequests: [FriendRequest] = []
+    @Published var recievedFriendRequests: [FriendRequest] = []
+    
+    @Published var isLoading = false
     
     
-    func loadFriends(user: AppUser){
-        
+    func loadFriendHandler(user: AppUser) async{
+        await loadFriendRequests(userId: user.id)
+        await loadFriends(userId: user.id)
+        await loadRecievedFriendRequests(userId: user.id)
+    }
+    
+    func loadFriendRequests(userId: String) async {
+        do {
+            let response = try await SupabaseHandler.client
+                .from("friend_request")
+                .select("*")
+                .eq("user_id", value: userId)
+                .execute()
+
+            let fetched = try JSONDecoder().decode(
+                [FriendRequest].self,
+                from: response.data
+            )
+
+            friendRequests = fetched
+
+        } catch {
+            print("Error:", error)
+        }
+    }
+    
+    func loadRecievedFriendRequests(userId: String) async {
+        do {
+            let fetched: [FriendRequest] = try await SupabaseHandler.client
+                .from("friend_request")
+                .select("*")
+                .eq("friend_id", value: userId)
+                .execute()
+                .value
+            
+            recievedFriendRequests = fetched
+        } catch {
+            print(error)
+        }
+    }
+    
+    func loadFriends(userId: String) async {
+        do {
+            let fetched: [Friend] = try await SupabaseHandler.client
+                .from("friends")
+                .select("*")
+                .eq("user_id", value: userId)
+                .execute()
+                .value
+            
+            friends = fetched
+        } catch {
+            print(error)
+        }
     }
     
     func sendFriendRequest(userId: String, friendId: String, friendUsername: String) async{
-        if(friendRequests.contains{$0.user_id == userId && $0.friend_id == friendId}){
-            ToastManager.shared.error("Reqeust already sent")
+        isLoading = true
+        print(friendRequests.count)
+        if friendRequests.contains(where: {
+            $0.user_id == userId && $0.friend_id == friendId
+        }) {
+            ToastManager.shared.error("Request already sent")
+            isLoading = false
             return
         }
         
@@ -46,30 +108,33 @@ final class FriendHandler: ObservableObject {
                 try await URLSession.shared.data(
                     for: request
                 )
-            
+            print(String(data: data, encoding: .utf8) ?? "nil")
             let friendRequest = try JSONDecoder().decode(FriendRequest.self, from: data)
             print(friendRequest)
             
             self.friendRequests.append(friendRequest)
             
             ToastManager.shared.success("Request send")
+            isLoading = false
             
         } catch {
             print(error)
             ToastManager.shared.error("Failed to send friend request")
+            isLoading = false
         }
     }
     
     func deleteFriendRequest(friendRequestId: String) async {
-        
-        if(!friendRequests.contains{$0.id == friendRequestId}){
+        isLoading = true
+        if(!friendRequests.contains{$0.id == friendRequestId} && !recievedFriendRequests.contains{$0.id == friendRequestId}){
             ToastManager.shared.error("Error")
+            isLoading = false
             return
         }
         
         do {
             let body: [String: Any] = [
-                "id": friendRequestId
+                "friendRequestId": friendRequestId
             ]
             
             guard let request = await loadHttpRequest(
@@ -83,24 +148,28 @@ final class FriendHandler: ObservableObject {
             let (_, response) = try await URLSession.shared.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse else {
+                isLoading = false
                 return
             }
 
             if (200...299).contains(httpResponse.statusCode) {
                 friendRequests.removeAll { $0.id == friendRequestId }
+                recievedFriendRequests.removeAll { $0.id == friendRequestId }
+                isLoading = false
                 return
             }
             
             ToastManager.shared.error("Error")
-            
+            isLoading = false
         } catch {
             print(error)
             ToastManager.shared.error("Error")
+            isLoading = false
         }
     }
     
     func acceptFriendRequest(friendRequestId: String, userId: String, friendId: String, friendUsername: String) async{
-        
+        isLoading = true
         //create friend
         do {
             
@@ -116,13 +185,17 @@ final class FriendHandler: ObservableObject {
                 body: body
             ) else {
                 ToastManager.shared.error("Failed to create request")
+                isLoading = false
                 return
+                
             }
             
             let (_, response) = try await URLSession.shared.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse else {
+                isLoading = false
                 return
+                
             }
 
             let (data, _) =
@@ -136,20 +209,24 @@ final class FriendHandler: ObservableObject {
             self.friends.append(friend)
             
             ToastManager.shared.success("Friend added")
+            isLoading = false
             
+            //delete friend request
+            await deleteFriendRequest(friendRequestId: friendRequestId)
+            isLoading = false
              
         } catch {
             print(error)
             ToastManager.shared.error("Error")
+            isLoading = false
         }
         
-        //delete friend request
-        await deleteFriendRequest(friendRequestId: friendRequestId)
+        
         
     }
     
     func deleteFriend(friendId: String) async {
-        
+        isLoading = true
         if(!friends.contains{$0.id == friendId}){
             ToastManager.shared.error("Friend not found")
             return
@@ -174,19 +251,23 @@ final class FriendHandler: ObservableObject {
             let (_, response) = try await URLSession.shared.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse else {
+                isLoading = false
                 return
+                
             }
             
             if (200...299).contains(httpResponse.statusCode) {
                 friends.removeAll { $0.friend_id == friendId }
+                isLoading = false
                 return
             }
             
             ToastManager.shared.error("Error")
-            
+            isLoading = false
         } catch {
             print(error)
             ToastManager.shared.error("Error")
+            isLoading = false
             return
         }
         

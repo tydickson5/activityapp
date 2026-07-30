@@ -16,6 +16,7 @@ import _LocationEssentials
 final class PostsHandler: ObservableObject {
     
     @Published var posts: [Post] = []
+    @Published var userPosts: [Post] = []
     
     @Published var isLoading: Bool = false
     @Published var isDeleteLoading: Bool = false
@@ -256,6 +257,7 @@ final class PostsHandler: ObservableObject {
             
             if let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) {
                 posts.removeAll { $0.id == post.id }
+                userPosts.removeAll { $0.id == post.id }
                 ToastManager.shared.success("Post deleted")
             } else {
                 ToastManager.shared.error("Failed to delete post")
@@ -360,5 +362,24 @@ final class PostsHandler: ObservableObject {
         if let index = posts.firstIndex(where: { $0.id == postId }) {
             posts[index].post_likes = likes
         }
+    }
+    
+    func getUsersPosts(userId: String) async {
+        do{
+            let posts: [Post] = try await SupabaseHandler.client
+                .from("posts")
+                .select("*")
+                .eq("user_id", value: userId)
+                .order("created_at", ascending: true)
+                .execute()
+                .value
+            
+            userPosts = posts
+            
+            print(posts)
+        } catch {
+            print(error)
+        }
+        
     }
 }

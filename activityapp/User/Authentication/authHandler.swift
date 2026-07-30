@@ -351,23 +351,6 @@ class AuthHandler: ObservableObject {
         }
     }
     
-    func getUsersPosts() async -> [Post] {
-        do{
-            let posts: [Post] = try await SupabaseHandler.client
-                .from("posts")
-                .select("*")
-                .eq("user_id", value: self.user!.id)
-                .order("created_at", ascending: true)
-                .execute()
-                .value
-            
-            print(posts)
-            return posts
-        } catch {
-            print(error)
-            return []
-        }
-        
-    }
+    
 }
 

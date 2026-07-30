@@ -14,6 +14,7 @@ struct GroupDetailView: View {
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
     @EnvironmentObject var postHandler: PostsHandler
+    @EnvironmentObject var friendHandler: FriendHandler
     
     var body: some View{
         NavigationStack {
@@ -35,7 +36,7 @@ struct GroupDetailView: View {
                             Task{
                                 await groupHandler.updatedSelectedGroup(userId: authHandler.user!.id, groupId: group.id)
                                 authHandler.user?.selected_group = group.id
-                                await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
+                                await postHandler.getPosts(userId: authHandler.user!.id, friends: friendHandler.friends)
                             }
                         }
                     }

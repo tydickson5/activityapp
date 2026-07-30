@@ -12,6 +12,7 @@ struct ImageView: View {
     @EnvironmentObject var authHandler: AuthHandler
     @EnvironmentObject var postHandler: PostsHandler
     @EnvironmentObject var locationHandler: LocationHandler
+    @EnvironmentObject var friendHandler: FriendHandler
     
     @State private var image: UIImage?
     @State private var showCamera = false
@@ -99,7 +100,7 @@ struct ImageView: View {
                         caption = ""
                         self.image = nil
                         postToPublic = false
-                        await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
+                        await postHandler.getPosts(userId: authHandler.user!.id, friends: friendHandler.friends)
                     }
                     
                     
@@ -123,7 +124,7 @@ struct ImageView: View {
                         caption = ""
                         self.image = nil
                         postToPublic = false
-                        await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
+                        await postHandler.getPosts(userId: authHandler.user!.id, friends: friendHandler.friends)
                     }
                 }, secondaryButton: .cancel())
             }

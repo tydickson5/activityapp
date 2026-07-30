@@ -13,6 +13,7 @@ struct VidView: View {
     @EnvironmentObject var authHandler: AuthHandler
     @EnvironmentObject var postHandler: PostsHandler
     @EnvironmentObject var locationHandler: LocationHandler
+    @EnvironmentObject var friendHandler: FriendHandler
     
     @State private var video: URL?
     @State private var thumbnail: UIImage?
@@ -100,7 +101,7 @@ struct VidView: View {
                         caption = ""
                         self.video = nil
                         postToPublic = false
-                        await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
+                        await postHandler.getPosts(userId: authHandler.user!.id, friends: friendHandler.friends)
                     }
                     
                     
@@ -124,7 +125,7 @@ struct VidView: View {
                         caption = ""
                         self.video = nil
                         postToPublic = false
-                        await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
+                        await postHandler.getPosts(userId: authHandler.user!.id, friends: friendHandler.friends)
                     }
                 }, secondaryButton: .cancel())
             }

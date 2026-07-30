@@ -59,7 +59,7 @@ struct ContentView: View {
                         .onAppear{
                             Task{
                                 
-                                await friendHandler.loadFriends(user: user)
+                                
                                 
                                 await postHandler.getPosts(userId: user.id, friends: friendHandler.friends)
                                 
@@ -77,15 +77,11 @@ struct ContentView: View {
                         .environmentObject(postHandler)
                         .environmentObject(authHandler)
                         .environmentObject(locationHandler)
-                    GroupView()
-                        .tabItem { Label("Groups",
-                            systemImage: "person.2.fill")}
-                        .tag(2)
-                        .environmentObject(groupHandler)
+
                     FriendsView()
                         .tabItem { Label("Friends",systemImage: "person")
                         }
-                        .tag(4)
+                        .tag(2)
                         .environmentObject(friendHandler)
                     AccountView()
                         .tabItem{
@@ -98,7 +94,10 @@ struct ContentView: View {
                     if let postId = appDelegate.pendingPostId {
                         processPostNotification(postId: postId)
                     }
-                    
+                    Task{
+                        await friendHandler.loadFriendHandler(user: authHandler.user!)
+                        print(friendHandler.friendRequests)
+                    }
                 }
                 .onChange(of: authHandler.isAuthenticated) { _, authenticated in
                     guard authenticated else { return }

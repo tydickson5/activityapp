@@ -11,6 +11,7 @@ struct GroupView: View{
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
     @EnvironmentObject var postHandler: PostsHandler
+    @EnvironmentObject var friendHandler: FriendHandler
     
     @State var showGroups: Bool = false
     @State var newGroupName: String = ""
@@ -43,7 +44,7 @@ struct GroupView: View{
                                     print(groupId)
                                     authHandler.user?.selected_group = groupId
                                     newGroupName = ""
-                                    await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupId)
+                                    await postHandler.getPosts(userId: authHandler.user!.id, friends: friendHandler.friends)
                                 }
                             }
                         }){

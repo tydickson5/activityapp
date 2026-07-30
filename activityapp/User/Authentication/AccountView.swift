@@ -13,7 +13,7 @@ struct AccountView: View {
     
     var body: some View {
 
-        AccountPostListElement()
+        AccountSettingsView()
     }
         
         

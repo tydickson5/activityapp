@@ -12,14 +12,14 @@ struct ButtonsElement: View {
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
     @EnvironmentObject var postHandler: PostsHandler
+    @EnvironmentObject var friendHandler: FriendHandler
     var locationManager: LocationHandler
     
     var body: some View {
         VStack(spacing: 12){
-            GroupPillSelectorElement()
             Button(action:{
                 Task{
-                    await postHandler.getPosts(userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!)
+                    await postHandler.getPosts(userId: authHandler.user!.id, friends: friendHandler.friends)
                 }
             }){
                 Image(systemName: "arrow.clockwise")
