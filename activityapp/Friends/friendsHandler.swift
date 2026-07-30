@@ -88,7 +88,6 @@ final class FriendHandler: ObservableObject {
 
             if (200...299).contains(httpResponse.statusCode) {
                 friendRequests.removeAll { $0.id == friendRequestId }
-                ToastManager.shared.error("Success")
                 return
             }
             
@@ -100,7 +99,52 @@ final class FriendHandler: ObservableObject {
         }
     }
     
-    func acceptFriendRequest(){
+    func acceptFriendRequest(friendRequestId: String, userId: String, friendId: String, friendUsername: String) async{
+        
+        //create friend
+        do {
+            
+            let body: [String: Any] = [
+                "friendRequestId": friendRequestId,
+                "userId": userId,
+                "friendId": friendId,
+                "friendUsername": friendUsername
+            ]
+            
+            guard let request = await loadHttpRequest(
+                path: "friends/acceptRequest",
+                body: body
+            ) else {
+                ToastManager.shared.error("Failed to create request")
+                return
+            }
+            
+            let (_, response) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                return
+            }
+
+            let (data, _) =
+                try await URLSession.shared.data(
+                    for: request
+                )
+            
+            let friend = try JSONDecoder().decode(Friend.self, from: data)
+            print(friend)
+            
+            self.friends.append(friend)
+            
+            ToastManager.shared.success("Friend added")
+            
+             
+        } catch {
+            print(error)
+            ToastManager.shared.error("Error")
+        }
+        
+        //delete friend request
+        await deleteFriendRequest(friendRequestId: friendRequestId)
         
     }
     
