@@ -69,6 +69,7 @@ final class FriendHandler: ObservableObject {
                 .from("friends")
                 .select("*")
                 .eq("user_id", value: userId)
+                .eq("active", value: true)
                 .execute()
                 .value
             
@@ -85,6 +86,13 @@ final class FriendHandler: ObservableObject {
             $0.user_id == userId && $0.friend_id == friendId
         }) {
             ToastManager.shared.error("Request already sent")
+            isLoading = false
+            return
+        }
+        if friends.contains(where: {
+            $0.user_id == userId && $0.friend_id == friendId
+        }) {
+            ToastManager.shared.error("You are friends")
             isLoading = false
             return
         }
@@ -159,7 +167,6 @@ final class FriendHandler: ObservableObject {
                 return
             }
             
-            ToastManager.shared.error("Error")
             isLoading = false
         } catch {
             print(error)
@@ -216,7 +223,7 @@ final class FriendHandler: ObservableObject {
             isLoading = false
              
         } catch {
-            print(error)
+            print("Error", error)
             ToastManager.shared.error("Error")
             isLoading = false
         }
@@ -225,9 +232,9 @@ final class FriendHandler: ObservableObject {
         
     }
     
-    func deleteFriend(friendId: String) async {
+    func deleteFriend(userId: String, friendId: String) async {
         isLoading = true
-        if(!friends.contains{$0.id == friendId}){
+        if(!friends.contains{$0.friend_id == friendId}){
             ToastManager.shared.error("Friend not found")
             return
         }
@@ -237,11 +244,12 @@ final class FriendHandler: ObservableObject {
             
             
             let body: [String: Any] = [
+                "userId": userId,
                 "friendId": friendId
             ]
             
             guard let request = await loadHttpRequest(
-                path: "friends/delete",
+                path: "friends/deleteFriend",
                 body: body
             ) else {
                 ToastManager.shared.error("Failed to create request")

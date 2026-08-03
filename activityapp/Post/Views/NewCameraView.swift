@@ -18,6 +18,6 @@ struct NewCameraView: View {
             onCapture(result)
             dismiss()
         }
-        .ignoreSafeArea()
+        .ignoresSafeArea()
     }
 }
