@@ -25,6 +25,12 @@
     </dict>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>caravyn uses your photo library to share photos and their location</string>
+    <key>NSCameraUsageDescription</key>
+    <string>caravyn needs camera access to let you take photos and videos for your posts</string>
+
+    <key>NSMicrophoneUsageDescription</key>
+    <string>caravyn needs microphone access to record audio with your videos</string>
+
 
     <key>UIBackgroundModes</key>
     <array>

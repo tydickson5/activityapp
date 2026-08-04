@@ -80,153 +80,105 @@ final class PostsHandler: ObservableObject {
         }
     }
     
-    func createImagePost(imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async{
-        isLoading = true
-        do {
-            /*
-            guard !isTooCloseToExistingPost(latitude: latitude, longitude: longitude) else {
-                ToastManager.shared.error("Too close to an existing post")
-                return
-            }
-            */
-            let postId =
-                UUID()
-                .uuidString
-            
-            let filepath = try await uploadImage(image: imageURL, userId: userId, postId: postId)
-            
-            var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/posts/create")!)
-            
-            request.httpMethod = "POST"
-            
-            do {
-                
-                var token = try await SupabaseHandler.client.auth.session.accessToken
-                
-                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-                
-                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                
-
-                let body: [String: Any] = [
-                    "postId": postId,
-                    "userId": userId,
-                    "groupId": groupId,
-                    "caption": caption,
-                    "mediaUrl": filepath,
-                    "mediaType": "image",
-                    "videoUrl": "",
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "public": isPublicPost
-                ]
-                
-                request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-                
-
-                do {
-                    let (data, _) = try await URLSession.shared.data(for: request)
-                    
-
-                    
-                    
-                    
-                    ToastManager.shared.success("Posted!")
-                    
-                    
-                    
-                    
-                } catch {
-                    print(error)
-                    ToastManager.shared.error("Error")
-                }
-                
-                isLoading = false
-                
-            }
-            
-        } catch {
-            print(error)
-            ToastManager.shared.error("Error")
-            isLoading = false
+    func createImagePost(imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async throws{
+        /*
+        guard !isTooCloseToExistingPost(latitude: latitude, longitude: longitude) else {
+            ToastManager.shared.error("Too close to an existing post")
+            return
         }
+        */
+        let postId =
+            UUID()
+            .uuidString
+        
+        let filepath = try await uploadImage(image: imageURL, userId: userId, postId: postId)
+        
+        var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/posts/create")!)
+        
+        request.httpMethod = "POST"
+            
+        var token = try await SupabaseHandler.client.auth.session.accessToken
+        
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+
+        let body: [String: Any] = [
+            "postId": postId,
+            "userId": userId,
+            "groupId": groupId,
+            "caption": caption,
+            "mediaUrl": filepath,
+            "mediaType": "image",
+            "videoUrl": "",
+            "latitude": latitude,
+            "longitude": longitude,
+            "public": isPublicPost
+        ]
+        
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw NSError(domain: "createImagePost", code: (response as? HTTPURLResponse)?.statusCode ?? -1)
+        }
+        
+        ToastManager.shared.success("Posted!")
+
         
     }
     
-    func createVideoPost(videoURL: URL, thumbnailURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async{
+    func createVideoPost(videoURL: URL, thumbnailURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async throws{
         print("posting vid")
-        isLoading = true
-        do {
-            /*
-            guard !isTooCloseToExistingPost(latitude: latitude, longitude: longitude) else {
-                ToastManager.shared.error("Too close to an existing post")
-                return
-            }
-            */
-            
-            let postId =
-                UUID()
-                .uuidString
-            
-            let filepath = try await uploadImage(image: thumbnailURL, userId: userId, postId: postId)
-            let filepathVideo = try await uploadVideo(videoURL: videoURL, userId: userId, postId: postId)
-            
-            var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/posts/create")!)
-            
-            request.httpMethod = "POST"
-            
-            do {
-                
-                var token = try await SupabaseHandler.client.auth.session.accessToken
-                
-                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-                
-                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                
-
-                let body: [String: Any] = [
-                    "postId": postId,
-                    "userId": userId,
-                    "groupId": groupId,
-                    "caption": caption,
-                    "mediaUrl": filepath,
-                    "mediaType": "video",
-                    "videoUrl": filepathVideo,
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "public": isPublicPost
-                ]
-                
-                request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-                
-
-                do {
-                    let (data, _) = try await URLSession.shared.data(for: request)
-                    
-
-                    
-                    
-                    
-                    ToastManager.shared.success("Posted!")
-                    
-                    
-                    
-                    
-                } catch {
-                    print(error)
-                    ToastManager.shared.error("Error")
-                }
-                
-                isLoading = false
-                
-            }
-            
-        } catch {
-            print(error)
-            ToastManager.shared.error("Error")
-            isLoading = false
+        /*
+        guard !isTooCloseToExistingPost(latitude: latitude, longitude: longitude) else {
+            ToastManager.shared.error("Too close to an existing post")
+            return
         }
+        */
         
+        let postId =
+            UUID()
+            .uuidString
+        
+        let filepath = try await uploadImage(image: thumbnailURL, userId: userId, postId: postId)
+        let filepathVideo = try await uploadVideo(videoURL: videoURL, userId: userId, postId: postId)
+        
+        var request = URLRequest(url: URL(string: "\(SupabaseHandler.backendURL)/posts/create")!)
+        
+        request.httpMethod = "POST"
+    
+        var token = try await SupabaseHandler.client.auth.session.accessToken
+        
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+
+        let body: [String: Any] = [
+            "postId": postId,
+            "userId": userId,
+            "groupId": groupId,
+            "caption": caption,
+            "mediaUrl": filepath,
+            "mediaType": "video",
+            "videoUrl": filepathVideo,
+            "latitude": latitude,
+            "longitude": longitude,
+            "public": isPublicPost
+        ]
+        
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw NSError(domain: "createImagePost", code: (response as? HTTPURLResponse)?.statusCode ?? -1)
+        }
+        ToastManager.shared.success("Posted!")
+      
     }
     
     func deletePost(post: Post) async {

@@ -69,7 +69,7 @@ struct ContentView: View {
                         .environmentObject(groupHandler)
 
                     
-                    PostView()
+                    NewPostView()
                         .tabItem { Label("Posts",
                             systemImage: "plus")}
                         .tag(1)
@@ -98,6 +98,8 @@ struct ContentView: View {
                         await friendHandler.loadFriendHandler(user: authHandler.user!)
                         print(friendHandler.friendRequests)
                     }
+                    PostUploadQueue.shared.postHandler = postHandler
+                    PostUploadQueue.shared.retryAll()
                 }
                 .onChange(of: authHandler.isAuthenticated) { _, authenticated in
                     guard authenticated else { return }
