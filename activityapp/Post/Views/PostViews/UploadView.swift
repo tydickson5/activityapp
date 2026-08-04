@@ -69,7 +69,7 @@ struct UploadView: View{
             return
         }
         
-        await postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: lat, longitude: long, isPublicPost: postToPublic)
+        //await postHandler.createImagePost(imageURL: image!, userId: authHandler.user!.id, groupId: groupHandler.selectedGroup!, caption: caption, latitude: lat, longitude: long, isPublicPost: postToPublic)
     }
     
     var body: some View {

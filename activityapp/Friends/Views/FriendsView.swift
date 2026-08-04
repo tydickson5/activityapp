@@ -14,16 +14,9 @@ struct FriendsView: View {
     
     var body: some View {
         ZStack{
+            //searchbar needed
             Form{
-                Button(action:{
-                    Task{
-                        await friendHandler.sendFriendRequest(userId: authHandler.user!.id, friendId: "11911829-4c12-4b17-83e3-4563749b4cd4", friendUsername: "test")
-                    }
-                }){
-                    Text("Test send friend request")
-                }
-                Text("Sent friend requests")
-                List {
+                Section("Sent Requests") {
                     ForEach(friendHandler.friendRequests) { request in
                         HStack{
                             Text(request.friend_username)
@@ -33,33 +26,45 @@ struct FriendsView: View {
                                 }
                                 
                             }){
-                                Text("Delete")
+                                Image(systemName: "trash.fill")
+                                    .foregroundStyle(Color.red)
+                                    .padding()
                             }
                         }
                         
                         
                     }
                 }
-                Text("Recieved friend requests")
-                List{
+                Section("Recieved Requests"){
                     ForEach(friendHandler.recievedFriendRequests){ request in
                         HStack{
                             Text(request.id)
-
-                            Button(action: {
-                                Task{
-                                    await friendHandler.deleteFriendRequest(friendRequestId: request.id)
+                            Spacer()
+                            HStack{
+                                Button(action: {
+                                    Task{
+                                        await friendHandler.deleteFriendRequest(friendRequestId: request.id)
+                                    }
+                                }){
+                                    Image(systemName: "trash.fill")
+                                        .foregroundStyle(Color.red)
+                                        .padding()
                                 }
-                            }){
-                                Text("Decline")
-                            }
-                            Button(action: {
-                                Task{
-                                    await friendHandler.acceptFriendRequest(friendRequestId: request.id, userId: request.friend_id, friendId: request.user_id, friendUsername: request.friend_username)
+                                
+                                Button(action: {
+                                    Task{
+                                        await friendHandler.acceptFriendRequest(friendRequestId: request.id, userId: request.friend_id, friendId: request.user_id, friendUsername: request.friend_username)
+                                    }
+                                }){
+                                    Image(systemName: "checkmark.fill")
+                                        .foregroundStyle(Color.lightBlue)
+                                        .padding()
+                                        .padding(.leading, 10)
                                 }
-                            }){
-                                Text("Accept")
+                                
+                                
                             }
+                            
                         }
                     }
                 }
@@ -74,7 +79,9 @@ struct FriendsView: View {
                                     await friendHandler.deleteFriend(userId: authHandler.user!.id,  friendId: friend.friend_id)
                                 }
                             }){
-                                Text("Delete")
+                                Image(systemName: "trash.fill")
+                                    .foregroundStyle(Color.red)
+                                    .padding()
                             }
                         }
                         

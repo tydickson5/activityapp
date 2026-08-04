@@ -81,12 +81,15 @@ final class PostsHandler: ObservableObject {
     }
     
     func createImagePost(imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async throws{
-        /*
-        guard !isTooCloseToExistingPost(latitude: latitude, longitude: longitude) else {
+        
+        var isHead: Bool = true
+        var state = "public"
+        
+        if(!isTooCloseToExistingPost(latitude: latitude, longitude: longitude)){
             ToastManager.shared.error("Too close to an existing post")
-            return
+            isHead = false
         }
-        */
+        
         let postId =
             UUID()
             .uuidString
@@ -114,7 +117,8 @@ final class PostsHandler: ObservableObject {
             "videoUrl": "",
             "latitude": latitude,
             "longitude": longitude,
-            "public": isPublicPost
+            "state": state,
+            "isHead": isHead,
         ]
         
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
@@ -132,12 +136,15 @@ final class PostsHandler: ObservableObject {
     
     func createVideoPost(videoURL: URL, thumbnailURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async throws{
         print("posting vid")
-        /*
-        guard !isTooCloseToExistingPost(latitude: latitude, longitude: longitude) else {
+        
+        var isHead: Bool = true
+        var state = "public"
+        
+        if(!isTooCloseToExistingPost(latitude: latitude, longitude: longitude)){
             ToastManager.shared.error("Too close to an existing post")
-            return
+            isHead = false
         }
-        */
+        
         
         let postId =
             UUID()
@@ -167,7 +174,8 @@ final class PostsHandler: ObservableObject {
             "videoUrl": filepathVideo,
             "latitude": latitude,
             "longitude": longitude,
-            "public": isPublicPost
+            "state": state,
+            "isHead": isHead,
         ]
         
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)

@@ -18,8 +18,9 @@ struct Post: Codable, Identifiable {
     var longitude: Double?
     var created_at: String
     var post_likes: Int
-    var is_head: Bool
-    var head_id: String
+    var state: String
+    var head: Bool
+    var thread_id: String
     
     var coordinate: CLLocationCoordinate2D?{
         guard let latitude, let longitude else{

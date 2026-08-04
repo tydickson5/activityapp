@@ -91,6 +91,12 @@ struct ContentView: View {
                 }
                 .tint(Color.dark)
                 .onAppear {
+                    #if DEBUG
+                    print("🟢 Running DEBUG build — backend: \(SupabaseHandler.backendURL)")
+                    #else
+                    print("🔴 Running RELEASE build — backend: \(SupabaseHandler.backendURL)")
+                    #endif
+                    
                     if let postId = appDelegate.pendingPostId {
                         processPostNotification(postId: postId)
                     }
