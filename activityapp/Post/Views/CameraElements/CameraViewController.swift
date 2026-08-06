@@ -234,6 +234,8 @@ extension CameraViewController {
         )
 
         view.addSubview(flip)
+        
+        
     }
 
     func addZoomButton(

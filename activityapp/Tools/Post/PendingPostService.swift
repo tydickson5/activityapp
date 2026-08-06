@@ -7,10 +7,12 @@
 
 import Foundation
 import UIKit
+internal import Combine
 
-final class PendingPostService {
+final class PendingPostService: ObservableObject {
     
     static let shared = PendingPostService()
+    @Published private(set) var pendingPosts: [PendingPost] = []
     
     
     private let folder: URL = {
@@ -23,6 +25,10 @@ final class PendingPostService {
     
     private var indexURL: URL { folder.appendingPathComponent("index.json") }
     
+    private init() {
+        pendingPosts = loadIndex()
+    }
+    
     private func loadIndex() -> [PendingPost] {
         guard let data = try? Data(contentsOf: indexURL),
               let posts = try? JSONDecoder().decode([PendingPost].self, from: data)
@@ -33,6 +39,9 @@ final class PendingPostService {
     private func saveIndex(_ posts: [PendingPost]) {
         guard let data = try? JSONEncoder().encode(posts) else { return }
         try? data.write(to: indexURL, options: .atomic)
+        DispatchQueue.main.async {
+            self.pendingPosts = posts   // keeps @Published in sync with disk
+        }
     }
     
     /// Saves an image + caption/metadata to disk and returns the queued PendingPost.
@@ -98,5 +107,10 @@ final class PendingPostService {
     
     func fileURL(for filename: String) -> URL {
         folder.appendingPathComponent(filename)
+    }
+    
+    func previewImage(for post: PendingPost) -> UIImage? {
+        let filename = (post.media_type == "video" ? (post.thumbnailFilename ?? post.media_url) : post.media_url!)!
+        return UIImage(contentsOfFile: fileURL(for: filename).path)
     }
 }

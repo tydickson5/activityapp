@@ -21,7 +21,7 @@ final class PostsHandler: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var isDeleteLoading: Bool = false
     
-    @Published var postType: String = "Friends"
+    @Published var postType: String = "public"
     
     func getPosts(userId: String, friends: [Friend]) async{
         
@@ -31,6 +31,7 @@ final class PostsHandler: ObservableObject {
                 //get friends posts
                 
             } else {
+                print("public posts showing")
                 let fetched: [Post] = try await SupabaseHandler.client
                     .from("posts")
                     .select()
@@ -39,6 +40,7 @@ final class PostsHandler: ObservableObject {
                     .value
                 
                 posts.append(contentsOf: fetched)
+                print(posts)
             }
             
             

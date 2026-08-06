@@ -35,6 +35,9 @@ struct NewPostView: View {
                 }
             } else {
                 Text("Post View")
+                Button("Open camera"){
+                    showCamera.toggle()
+                }
             }
         }
         .sheet(isPresented: $showCamera) {
