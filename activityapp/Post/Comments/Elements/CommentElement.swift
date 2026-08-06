@@ -30,18 +30,23 @@ struct CommentElement: View{
     var comment: Comment
     
     @State var username: String = "Loading..."
+    @State var user: AppUser? = nil
     
     var body: some View{
         HStack{
-            Text(username)
-                .font(.caption)
+            NavigationLink(destination: OtherUserView(user: user!), label:{
+                Text(username)
+                    .font(.caption)
 
-            Spacer()
-            Text(formattedDate(comment.created_at))
-                .font(.caption)
+                Spacer()
+                Text(formattedDate(comment.created_at))
+                    .font(.caption)
+            })
+            
         }
         .task{
-            username = await authHandler.getOtherUserFromId(id: comment.user_id)!.username
+            user = await authHandler.getOtherUserFromId(id: comment.user_id)!
+            username = user!.username
         }
        
     }

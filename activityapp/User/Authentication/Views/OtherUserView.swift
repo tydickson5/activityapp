@@ -23,6 +23,7 @@ struct OtherUserView: View {
             Text(user.username)
             
             //friend request
+            //check if friend/request exists already
             Button{
                 Task{
                     await friendHandler.sendFriendRequest(userId: authHandler.user!.id, friendId: user.id, friendUsername: user.username)

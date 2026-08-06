@@ -13,6 +13,8 @@ struct PostDetailView: View {
     var post: Post
     @State var liked = false
     
+    @State var user: AppUser? = nil
+    
     @State var username = "Loading..."
     
     @State var newComment: String = ""
@@ -107,7 +109,16 @@ struct PostDetailView: View {
                     .padding(.bottom, 20)
                 
                 
-                
+                HStack{
+                    NavigationLink(destination: OtherUserView(user: user!), label:{
+                        HStack{
+                            Text(user!.username)
+                                .padding(.trailing, 10)
+                            Image(systemName: "chevron.right")
+                        }
+                    })
+                    Spacer()
+                }
                 
                 //comment
                 //like
@@ -230,6 +241,8 @@ struct PostDetailView: View {
         .task {
             liked = await likeHander.checkUserLikeOnPost(postId: post.id, userId: authHandler.user!.id)
             comments = await commentHandler.getComments(postId: post.id)
+            
+            user = await authHandler.getOtherUserFromId(id: post.user_id)
             
             
             guard post.media_type == "video" else { return }
