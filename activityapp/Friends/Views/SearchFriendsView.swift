@@ -34,6 +34,7 @@ struct SearchFriendsView: View {
                             }
                         } label: {
                             Image(systemName: "person.badge.plus")
+                                .foregroundStyle(Color.lightBlue)
                         }
                     }
                 }

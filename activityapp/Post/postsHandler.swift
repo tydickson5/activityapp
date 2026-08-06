@@ -344,4 +344,22 @@ final class PostsHandler: ObservableObject {
         }
         
     }
+    
+    func getOtherUsersPosts(userId: String) async -> [Post]? {
+        do{
+            let posts: [Post] = try await SupabaseHandler.client
+                .from("posts")
+                .select("*")
+                .eq("user_id", value: userId)
+                .order("created_at", ascending: true)
+                .execute()
+                .value
+            
+            return posts
+
+        } catch {
+            print(error)
+            return nil
+        }
+    }
 }
