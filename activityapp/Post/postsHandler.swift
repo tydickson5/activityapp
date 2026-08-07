@@ -39,23 +39,32 @@ final class PostsHandler: ObservableObject {
                 .value
             
             posts.append(contentsOf: fetched)
-            print(posts)
             
-            let fetchedFriendsPosts: [Post] = try await SupabaseHandler.client
-                .from("posts")
-                .select()
-                .in("user_id", values: friends.map { $0.id })
-                .order("created_at", ascending: false)
-                .execute()
-                .value
-            
-            friendsPosts.append(contentsOf: fetchedFriendsPosts)
-            
+            await getFriendsPosts(userId: userId, friends: friends)
             
         } catch {
             print(error)
         }
     }
+    func getFriendsPosts(userId: String, friends: [Friend]) async{
+        do{
+            print("FRIENDs")
+            print(friends)
+            let fetchedFriendsPosts: [Post] = try await SupabaseHandler.client
+                .from("posts")
+                .select()
+                .in("user_id", values: friends.map { $0.friend_id })
+                .order("created_at", ascending: false)
+                .execute()
+                .value
+            
+            friendsPosts.append(contentsOf: fetchedFriendsPosts)
+        } catch {
+            print(error)
+        }
+        
+    }
+    
     func imageURL(path: String) -> URL? {
         let cleanPath = path.hasPrefix("post-media/")
             ? String(path.dropFirst("post-media/".count))

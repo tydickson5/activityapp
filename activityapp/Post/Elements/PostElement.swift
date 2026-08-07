@@ -22,7 +22,7 @@ struct PostElement: View {
                     PostDetailView(post: post)
                 } label: {
                     if let media = post.media_url {
-                        AsyncImage(
+                        CachedAsyncImage(
                             url: postHandler.imageURL(path: media)
                         ) { image in
                             image

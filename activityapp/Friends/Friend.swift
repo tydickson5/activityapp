@@ -5,7 +5,7 @@
 //  Created by Ty Dickson on 7/23/26.
 //
 
-struct Friend: Codable, Identifiable {
+struct Friend: Codable, Identifiable, Equatable {
     var id: String
     var user_id: String
     var friend_id: String
