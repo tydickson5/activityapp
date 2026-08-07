@@ -332,4 +332,33 @@ final class FriendHandler: ObservableObject {
             .value
     }
     
+    func userContainsFriend(friendId: String) -> Bool {
+        if(!friendRequests.contains{$0.friend_id == friendId} && !recievedFriendRequests.contains{$0.user_id == friendId} && !friends.contains{$0.user_id == friendId}){
+
+            return false
+        }
+        return true
+    }
+    
+    func userIsFriend(friendId: String) -> Bool {
+        if(friends.contains{$0.friend_id == friendId}){
+            return true
+        }
+        return false
+    }
+    
+    func requestSent(userId: String) -> Bool {
+        if(friendRequests.contains{$0.user_id == userId}){
+            return true
+        }
+        return false
+    }
+    
+    func requestRecieved(friendId: String) -> Bool {
+        if(recievedFriendRequests.contains{$0.user_id == friendId}){
+            return true
+        }
+        return false
+    }
+    
 }

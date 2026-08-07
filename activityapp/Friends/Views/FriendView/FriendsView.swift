@@ -40,7 +40,7 @@ struct FriendsView: View {
                     Section("Sent Requests") {
                         ForEach(friendHandler.friendRequests) { request in
                             HStack{
-                                Text(request.friend_username)
+                                SentFriendRequestRow(friend: request)
                                 Spacer()
                                 Button{
                                     Task{
@@ -50,8 +50,8 @@ struct FriendsView: View {
                                 } label: {
                                     Image(systemName: "trash.fill")
                                         .foregroundStyle(Color.red)
-                                        .padding()
                                 }
+                                .buttonStyle(.borderless)
                             }
                             
                             
@@ -60,9 +60,20 @@ struct FriendsView: View {
                     Section("Recieved Requests"){
                         ForEach(friendHandler.recievedFriendRequests){ request in
                             HStack{
-                                Text(request.friend_username)
+                                RecievedFriendRequestRow(friend: request)
                                 Spacer()
                                 HStack{
+                                    Button(action: {
+                                        Task{
+                                            await friendHandler.acceptFriendRequest(friendRequestId: request.id, userId: request.friend_id, friendId: request.user_id, friendUsername: request.friend_username)
+                                        }
+                                    }){
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(Color.lightBlue)
+
+                                    }
+                                    .buttonStyle(.borderless)
+                                    .padding(.trailing, 10)
                                     Button(action: {
                                         Task{
                                             await friendHandler.deleteFriendRequest(friendRequestId: request.id)
@@ -72,19 +83,8 @@ struct FriendsView: View {
                                             .foregroundStyle(Color.red)
                                     }
                                     .buttonStyle(.borderless)
-                                    .padding()
                                     
-                                    Button(action: {
-                                        Task{
-                                            await friendHandler.acceptFriendRequest(friendRequestId: request.id, userId: request.friend_id, friendId: request.user_id, friendUsername: request.friend_username)
-                                        }
-                                    }){
-                                        Image(systemName: "checkmark.fill")
-                                            .foregroundStyle(Color.lightBlue)
-
-                                    }
-                                    .buttonStyle(.borderless)
-                                    .padding(.leading, 10)
+                                    
                                     
                                 }
                                 
@@ -95,7 +95,9 @@ struct FriendsView: View {
                     Section("My Friends"){
                         ForEach(friendHandler.friends){ friend in
                             HStack{
-                                Text(friend.user_id)
+                                FriendRow(friend: friend)
+ 
+                                
                                 Spacer()
                                 Button(action: {
                                     Task{
@@ -106,6 +108,7 @@ struct FriendsView: View {
                                     Image(systemName: "trash.fill")
                                         .foregroundStyle(Color.red)
                                 }
+                                .buttonStyle(.borderless)
                             }
                             
                             

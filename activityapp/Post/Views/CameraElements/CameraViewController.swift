@@ -236,6 +236,19 @@ extension CameraViewController {
         view.addSubview(flip)
         
         
+        let recordHintLabel = UILabel()
+        
+        recordHintLabel.text = "Hold to record"
+        recordHintLabel.textAlignment = .center
+        recordHintLabel.textColor = .white
+        recordHintLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        recordHintLabel.frame = CGRect(
+            x: 0,
+            y: buttonFrame.minY - 45,
+            width: view.bounds.width,
+            height: 20
+        )
+        view.addSubview(recordHintLabel)
     }
 
     func addZoomButton(

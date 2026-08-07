@@ -15,6 +15,8 @@ struct ButtonsElement: View {
     @EnvironmentObject var friendHandler: FriendHandler
     var locationManager: LocationHandler
     
+    @Binding var publicPost: Bool
+    
     var body: some View {
         VStack(spacing: 12){
             Button(action:{
@@ -34,6 +36,17 @@ struct ButtonsElement: View {
                 locationManager.recenter()
             }){
                 Image(systemName: "location")
+                    .frame(width: 15, height: 15)
+                    .foregroundStyle(Color.white)
+                    .padding()
+                    .background(Color.dark.opacity(0.9))
+                    .clipShape(Circle())
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            Button(action:{
+                publicPost.toggle()
+            }){
+                Image(systemName: publicPost ? "person.2.fill" : "eye")
                     .frame(width: 15, height: 15)
                     .foregroundStyle(Color.white)
                     .padding()

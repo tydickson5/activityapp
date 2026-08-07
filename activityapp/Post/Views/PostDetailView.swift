@@ -110,15 +110,24 @@ struct PostDetailView: View {
                 
                 
                 HStack{
-                    NavigationLink(destination: OtherUserView(user: user!), label:{
-                        HStack{
-                            Text(user!.username)
-                                .padding(.trailing, 10)
+                    if let user {
+                        NavigationLink {
+                            OtherUserView(user: user)
+                        } label: {
+                            HStack {
+                                Text(user.username)
+                                Image(systemName: "chevron.right")
+                            }
+                        }
+                    } else {
+                        HStack {
+                            Text("Loading...")
                             Image(systemName: "chevron.right")
                         }
-                    })
+                    }
                     Spacer()
                 }
+                .padding(.bottom, 10)
                 
                 //comment
                 //like

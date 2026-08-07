@@ -75,7 +75,7 @@ final class LikesHandler {
             let body: [String: Any] = [
                 "postId": postId,
                 "userId": userId,
-                "post_likes": likes
+                "postLikes": likes
             ]
             
             request.httpBody = try? JSONSerialization.data(withJSONObject: body)

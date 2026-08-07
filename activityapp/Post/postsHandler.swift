@@ -16,6 +16,7 @@ import _LocationEssentials
 final class PostsHandler: ObservableObject {
     
     @Published var posts: [Post] = []
+    @Published var friendsPosts: [Post] = []
     @Published var userPosts: [Post] = []
     
     @Published var isLoading: Bool = false
@@ -27,21 +28,28 @@ final class PostsHandler: ObservableObject {
         
         do {
             
-            if(postType == "friends"){
-                //get friends posts
-                
-            } else {
-                print("public posts showing")
-                let fetched: [Post] = try await SupabaseHandler.client
-                    .from("posts")
-                    .select()
-                    .order("created_at", ascending: false)
-                    .execute()
-                    .value
-                
-                posts.append(contentsOf: fetched)
-                print(posts)
-            }
+            
+            
+            print("public posts showing")
+            let fetched: [Post] = try await SupabaseHandler.client
+                .from("posts")
+                .select()
+                .order("created_at", ascending: false)
+                .execute()
+                .value
+            
+            posts.append(contentsOf: fetched)
+            print(posts)
+            
+            let fetchedFriendsPosts: [Post] = try await SupabaseHandler.client
+                .from("posts")
+                .select()
+                .in("user_id", values: friends.map { $0.id })
+                .order("created_at", ascending: false)
+                .execute()
+                .value
+            
+            friendsPosts.append(contentsOf: fetchedFriendsPosts)
             
             
         } catch {
@@ -86,6 +94,9 @@ final class PostsHandler: ObservableObject {
         
         var isHead: Bool = true
         var state = "public"
+        if(!isPublicPost){
+            state = "friends"
+        }
         
         if(!isTooCloseToExistingPost(latitude: latitude, longitude: longitude)){
             ToastManager.shared.error("Too close to an existing post")
@@ -126,10 +137,15 @@ final class PostsHandler: ObservableObject {
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         
 
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw NSError(domain: "createImagePost", code: (response as? HTTPURLResponse)?.statusCode ?? -1)
         }
+        
+        let newPost = try JSONDecoder().decode(Post.self, from: data)
+        
+        posts.append(newPost)
+        userPosts.append(newPost)
         
         ToastManager.shared.success("Posted!")
 
@@ -141,6 +157,9 @@ final class PostsHandler: ObservableObject {
         
         var isHead: Bool = true
         var state = "public"
+        if(!isPublicPost){
+            state = "friends"
+        }
         
         if(!isTooCloseToExistingPost(latitude: latitude, longitude: longitude)){
             ToastManager.shared.error("Too close to an existing post")
@@ -183,10 +202,16 @@ final class PostsHandler: ObservableObject {
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         
 
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw NSError(domain: "createImagePost", code: (response as? HTTPURLResponse)?.statusCode ?? -1)
         }
+        
+        let newPost = try JSONDecoder().decode(Post.self, from: data)
+        
+        posts.append(newPost)
+        userPosts.append(newPost)
+        
         ToastManager.shared.success("Posted!")
       
     }
@@ -332,7 +357,7 @@ final class PostsHandler: ObservableObject {
                 .from("posts")
                 .select("*")
                 .eq("user_id", value: userId)
-                .order("created_at", ascending: true)
+                .order("created_at", ascending: false)
                 .execute()
                 .value
             
@@ -351,7 +376,7 @@ final class PostsHandler: ObservableObject {
                 .from("posts")
                 .select("*")
                 .eq("user_id", value: userId)
-                .order("created_at", ascending: true)
+                .order("created_at", ascending: false)
                 .execute()
                 .value
             

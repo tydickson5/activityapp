@@ -12,7 +12,9 @@ struct MapElement: View {
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
     @StateObject var locationManager =  LocationHandler()
-    @EnvironmentObject var postHandler: PostsHandler  // add this
+    @EnvironmentObject var postHandler: PostsHandler
+    
+    @State var publicPosts: Bool = true
     
     
     @State private var position: MapCameraPosition = .automatic
@@ -41,7 +43,7 @@ struct MapElement: View {
     
     var body: some View {
         Map(position: $position) {
-            ForEach(postHandler.posts.filter { $0.coordinate != nil }) { post in
+            ForEach(publicPosts ? postHandler.friendsPosts.filter { $0.coordinate != nil } : postHandler.posts.filter { $0.coordinate != nil }) { post in
 
                 if zoomLevel < 0.30 || isLessThanOneDayOld(post.created_at) {
 
@@ -77,7 +79,8 @@ struct MapElement: View {
         }
         .ignoresSafeArea()
         .overlay(alignment: .topTrailing){
-            ButtonsElement(locationManager: locationManager)
+            
+            ButtonsElement(locationManager: locationManager, publicPost: $publicPosts)
                 
         }
     }

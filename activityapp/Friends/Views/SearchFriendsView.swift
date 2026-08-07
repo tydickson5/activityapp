@@ -27,15 +27,18 @@ struct SearchFriendsView: View {
                         
                         Spacer()
                         
-                        Button {
-                            Task {
-                                // send friend request here
-                                await friendHandler.sendFriendRequest(userId: authHandler.user!.id, friendId: user.id, friendUsername: user.username)
+                        if(!friendHandler.userContainsFriend(friendId: user.id)){
+                            Button {
+                                Task {
+                                    // send friend request here
+                                    await friendHandler.sendFriendRequest(userId: authHandler.user!.id, friendId: user.id, friendUsername: authHandler.user!.username)
+                                }
+                            } label: {
+                                Image(systemName: "person.badge.plus")
+                                    .foregroundStyle(Color.lightBlue)
                             }
-                        } label: {
-                            Image(systemName: "person.badge.plus")
-                                .foregroundStyle(Color.lightBlue)
                         }
+                        
                     }
                 }
                 

@@ -20,26 +20,39 @@ struct NewPostView: View {
     
     var body: some View{
         VStack {
-            if let media = capturedMedia {
+            HStack{
+                Spacer()
+                
+                Button(action:{
+                    showCamera.toggle()
+                }){
+                    Text("Open camera")
+                        .padding(.trailing, 5)
+                        .foregroundStyle(Color.lightBlue)
+                    Image(systemName: "camera.fill")
+                        .foregroundStyle(Color.lightBlue)
+                        .imageScale(.large)
+                }
+                .padding(.bottom, 10)
+            }
+            if let media = capturedMedia, let authUser = authHandler.user{
                 PostPreviewElement(
                     media: media,
                     postHandler: postHandler,
-                    userId: authHandler.user!.id,
+                    userId: authUser.id,
                     groupId: groupHandler.selectedGroup!/* current group id */,
                     latitude: locationHandler.latitude,
-                    longitude: locationHandler.longitude/* current long */,
-                    isPublicPost: true
+                    longitude: locationHandler.longitude/* current long */
+                    
                 ) {
                     capturedMedia = nil
                     // navigate away / dismiss, etc.
                 }
             } else {
-                Text("Post View")
-                Button("Open camera"){
-                    showCamera.toggle()
-                }
+                Spacer()
             }
         }
+        .padding()
         .sheet(isPresented: $showCamera) {
             NewCameraView { result in
                 capturedMedia = result

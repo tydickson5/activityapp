@@ -17,69 +17,87 @@ struct AccountView: View {
     
     var body: some View {
         NavigationStack{
-            VStack{
-                Form{
-                    Section{
-                        NavigationLink {
-                            AccountSettingsView()
-                        } label: {
-                            Label("Settings", systemImage: "cog.fill")
-                        }
-                    }
-                    Section("Uploading posts"){
-                        ForEach(pendingStore.pendingPosts){ result in
-                            HStack{
-                                if let image = pendingStore.previewImage(for: result) {
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                }
-                                Spacer()
-                                Button(action:{
-                                    pendingStore.remove(result)
-                                }){
-                                    Image(systemName: "trash.fill")
-                                        .foregroundStyle(Color.red)
-                                }
-                            }
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(.dark)
-                                    .stroke(Color.dark.opacity(0.5), lineWidth: 2)
-                            )
-                            
-                            
-                        }
-                    }
-                    Section("My Posts"){
-                        ForEach(postHandler.userPosts){ post in
-                            NavigationLink(destination: PostDetailView(post: post), label: {
-                                
-                                HStack{
-                                    if let image = postHandler.imageURL(path: post.media_url!) {
-                                        AsyncImage(url: image)
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 50, height: 50)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    }
-                                    Spacer()
-                                    Image(systemName: "chevron.right")
-                                }
-                                
-                            })
-                            
-                        }
+            Form{
+                Section{
+                    NavigationLink {
+                        AccountSettingsView()
+                    } label: {
+                        Label("Settings", systemImage: "gear.fill")
                     }
                 }
-
+                Section("Uploading posts"){
+                    ForEach(pendingStore.pendingPosts){ result in
+                        HStack{
+                            if let image = postHandler.imageURL(path: result.media_url!) {
+                                AsyncImage(url: image) { phase in
+                                    switch phase {
+                                    case .success(let img):
+                                        img
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                    case .failure:
+                                        Image(systemName: "photo")
+                                            .foregroundStyle(.gray)
+                                    default:
+                                        ProgressView()
+                                    }
+                                }
+                                .frame(width: 65, height: 100)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                            Spacer()
+                            Button(action:{
+                                pendingStore.remove(result)
+                            }){
+                                Image(systemName: "trash.fill")
+                                    .foregroundStyle(Color.red)
+                            }
+                        }
+                        
+                        
+                    }
+                }
+                Section("My Posts"){
+                    ForEach(postHandler.userPosts){ post in
+                        NavigationLink(destination: PostDetailView(post: post), label: {
+                            
+                            HStack{
+                                if let image = postHandler.imageURL(path: post.media_url!) {
+                                    AsyncImage(url: image) { phase in
+                                        switch phase {
+                                        case .success(let img):
+                                            img
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                        case .failure:
+                                            Image(systemName: "photo")
+                                                .foregroundStyle(.gray)
+                                        default:
+                                            ProgressView()
+                                        }
+                                    }
+                                    .frame(width: 65, height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
+                                Spacer()
+                            }
+                            
+                        })
+                        
+                    }
+                }
             }
-            .padding()
-            .refreshable(action: {
+
+        }
+        .refreshable(action: {
+            await postHandler.getUsersPosts(userId: authHandler.user!.id)
+        })
+        .onAppear{
+            Task{
                 await postHandler.getUsersPosts(userId: authHandler.user!.id)
-            })
+            }
+            
         }
     }
+    
 }

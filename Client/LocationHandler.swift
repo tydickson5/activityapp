@@ -26,6 +26,8 @@ final class LocationHandler:
     var isAuthorized: Bool {
         authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways
     }
+    
+
 
     override init() {
         super.init()

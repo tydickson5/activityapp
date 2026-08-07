@@ -142,6 +142,13 @@ class AuthHandler: ObservableObject {
                 email: email,
                 password: password
             )
+            print("=== SIGNUP DEBUG ===")
+            print("User ID: \(authResponse.user.id)")
+            print("User email: \(authResponse.user.email ?? "nil")")
+            print("Identities: \(authResponse.user.identities ?? [])")
+
+            print("Session: \(authResponse.session != nil ? "present" : "nil")")
+            print("=====================")
 
             guard let session = authResponse.session else {
                 ToastManager.shared.error("Signup failed — no session returned")

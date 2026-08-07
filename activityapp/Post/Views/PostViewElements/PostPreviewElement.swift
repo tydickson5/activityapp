@@ -18,39 +18,62 @@ struct PostPreviewElement: View {
     let groupId: String
     let latitude: Double
     let longitude: Double
-    let isPublicPost: Bool
+    
     
     var onPosted: () -> Void
     
     @State private var caption: String = ""
     @State private var isSubmitting = false
     
+    @State var isPublicPost = false
+    @State var saveToLibrary = true
+    
     var body: some View {
         VStack{
+            
             mediaPreview
-                .frame(maxWidth: .infinity, maxHeight: 400)
+                .frame(maxWidth: .infinity, maxHeight: 450)
                 .clipped()
+                .padding(.bottom, 10)
             
-            TextField("Write a caption...", text: $caption, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal)
+            Toggle(isOn: $isPublicPost) {
+                Text(isPublicPost ? "Post to public" : "Post to friends")
+            }
+            .tint(.lightBlue)
             
-            Button {
-                submit()
-            } label: {
+            Toggle(isOn: $saveToLibrary) {
+                Text("Save to your photo library?")
+            }
+            .tint(.lightBlue)
+            
+            TextField("Write a caption...", text: $caption)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.dark.opacity(0.5), lineWidth: 2)
+                )
+            
+            Button(action:{
+                submit(saveToLibrary: saveToLibrary)
+            }) {
                 if isSubmitting {
                     ProgressView()
                 } else {
                     Text("Post").frame(maxWidth: .infinity)
+                        .frame(height: 20)
+                        .tint(.white)
                 }
             }
-            .buttonStyle(.borderedProminent)
-            .padding(.horizontal)
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.dark)
+                    .stroke(Color.dark.opacity(0.5), lineWidth: 2)
+            )
             .disabled(isSubmitting)
             
             Spacer()
         }
-        .padding()
     }
     
     @ViewBuilder
@@ -65,18 +88,18 @@ struct PostPreviewElement: View {
         }
     }
     
-    private func submit() {
+    private func submit(saveToLibrary: Bool) {
         isSubmitting = true
         
         switch media {
         case .photo(let image):
-            PhotoLibrarySaver.save(image: image)
+            if saveToLibrary{PhotoLibrarySaver.save(image: image)}
             _ = PendingPostService.shared.enqueueImage(
                 image: image, caption: caption, userId: userId, groupId: groupId,
                 latitude: latitude, longitude: longitude, isPublicPost: isPublicPost
             )
         case .video(let url):
-            PhotoLibrarySaver.save(videoURL: url)
+            if saveToLibrary{PhotoLibrarySaver.save(videoURL: url)}
             if let thumbnail = postHandler.generateThumbnail(from: url) {
                 _ = PendingPostService.shared.enqueueVideo(
                     videoURL: url, thumbnail: thumbnail, caption: caption, userId: userId,

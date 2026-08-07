@@ -34,14 +34,20 @@ struct CommentElement: View{
     
     var body: some View{
         HStack{
-            NavigationLink(destination: OtherUserView(user: user!), label:{
-                Text(username)
-                    .font(.caption)
+            if let user{
+                NavigationLink(destination: OtherUserView(user: user), label:{
+                    Text(username)
+                        .font(.caption)
 
-                Spacer()
-                Text(formattedDate(comment.created_at))
+                    Spacer()
+                    Text(formattedDate(comment.created_at))
+                        .font(.caption)
+                })
+            } else {
+                Text("Loading...")
                     .font(.caption)
-            })
+            }
+            
             
         }
         .task{
