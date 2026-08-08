@@ -19,6 +19,8 @@ class AuthHandler: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    @Published var isLoginLoading = false
+    
     @Published var needsOnboarding: Bool = false
 
     
@@ -138,6 +140,8 @@ class AuthHandler: ObservableObject {
     
     func signUp(email: String, password: String) async -> String?{
         do {
+            isLoginLoading = true
+            
             let authResponse = try await SupabaseHandler.client.auth.signUp(
                 email: email,
                 password: password
@@ -152,12 +156,14 @@ class AuthHandler: ObservableObject {
 
             guard let session = authResponse.session else {
                 ToastManager.shared.error("Signup failed — no session returned")
+                isLoginLoading = false
                 return nil
             }
 
             let token = session.accessToken
 
             guard let data = await getUser(token: token) else {
+                isLoginLoading = false
                 return nil
             }
 
@@ -175,16 +181,19 @@ class AuthHandler: ObservableObject {
             }
             checkOnboardingStatus()
             
+            isLoginLoading = false
             return self.user?.id
 
         } catch let error as AuthError {
             self.errorMessage = error.message
             print(error)
             ToastManager.shared.error(error.message)
+            isLoginLoading = false
             return nil
         } catch {
             self.errorMessage = error.localizedDescription
             ToastManager.shared.error("Signup failed")
+            isLoginLoading = false
             return nil
         }
     }
@@ -221,7 +230,7 @@ class AuthHandler: ObservableObject {
     
     func signIn(email: String, password: String) async {
         do {
-
+            isLoginLoading = true
             try await SupabaseHandler.client.auth.signIn(
                 email: email,
                 password: password
@@ -229,18 +238,20 @@ class AuthHandler: ObservableObject {
 
             await completeAuthLogin()
 
-
+            isLoginLoading = false
 
         } catch let error as AuthError {
             
             self.errorMessage = error.message
             print(error)
             ToastManager.shared.error("Invalid Credentials")
+            isLoginLoading = false
 
         } catch {
 
             self.errorMessage = error.localizedDescription
             ToastManager.shared.error("Invalid Credentials")
+            isLoginLoading = false
         }
     }
     

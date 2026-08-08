@@ -58,6 +58,7 @@ struct SignUpView: View{
                     .fill(.dark)
                     .stroke(Color.dark.opacity(0.5), lineWidth: 2)
             )
+            .disabled(authHandler.isLoginLoading)
             
             
         }
@@ -67,8 +68,4 @@ struct SignUpView: View{
     }
         
         
-}
-
-#Preview {
-    SignUpView().environmentObject(AuthHandler()).toast()
 }
