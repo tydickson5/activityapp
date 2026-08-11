@@ -56,16 +56,6 @@ struct ContentView: View {
                     HomeView().id(1)
                         .tabItem { Label("Map", systemImage: "map.fill") }
                         .tag(0)
-                        .onAppear{
-                            Task{
-                                
-                                
-                                
-                                await postHandler.getPosts(userId: user.id, friends: friendHandler.friends)
-                                
-                                print("POST COUNT:", postHandler.posts.count)
-                            }
-                        }
                         .environmentObject(groupHandler)
 
                     
@@ -99,6 +89,8 @@ struct ContentView: View {
                     Task{
                         await friendHandler.loadFriendHandler(user: authHandler.user!)
                         print(friendHandler.friendRequests)
+                        
+                        await postHandler.getPosts(userId: user.id, friends: friendHandler.friends)
                     }
                     PostUploadQueue.shared.postHandler = postHandler
                     PostUploadQueue.shared.retryAll()

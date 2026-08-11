@@ -11,6 +11,8 @@ import UserNotifications
 struct PermissionsOnboardView: View {
     @EnvironmentObject var authHandler: AuthHandler
     @EnvironmentObject var locationHandler: LocationHandler
+    
+    @State var showWelcomeOnboardView: Bool = false
 
     @State var notificationsEnabled = false
     @State var locationEnabled = false
@@ -19,58 +21,63 @@ struct PermissionsOnboardView: View {
     
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        if(showWelcomeOnboardView){
+            
+        } else {
+            VStack(spacing: 24) {
+                Spacer()
 
-            Text("Permissions")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                Text("Permissions")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
 
-            Text("Location permissions are need to use this app. Notifications permissions are recommended to know when friends post")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+                Text("Location permissions are need to use this app. Notifications permissions are recommended to know when friends post")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+
+                Spacer()
+
+                permissionRow(
+                    icon: "bell.fill",
+                    title: "Notifications",
+                    subtitle: "Get notified about posts, comments, and likes",
+                    enabled: notificationsEnabled,
+                    action: requestNotifications
+                )
+
+                permissionRow(
+                    icon: "location.fill",
+                    title: "Location",
+                    subtitle: "See posts around the world",
+                    enabled: locationEnabled,
+                    action: requestLocation
+                )
+
+                Spacer()
+
+                Button(action: finishOnboarding) {
+                    Text("Continue")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 20)
+                        .tint(.white)
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.dark)
+                )
                 .padding(.horizontal)
 
-            Spacer()
-
-            permissionRow(
-                icon: "bell.fill",
-                title: "Notifications",
-                subtitle: "Get notified about posts, comments, and likes",
-                enabled: notificationsEnabled,
-                action: requestNotifications
-            )
-
-            permissionRow(
-                icon: "location.fill",
-                title: "Location",
-                subtitle: "See posts around the world",
-                enabled: locationEnabled,
-                action: requestLocation
-            )
-
-            Spacer()
-
-            Button(action: finishOnboarding) {
-                Text("Continue")
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 20)
-                    .tint(.white)
+                Button("Skip for now", action: finishOnboarding)
+                    .tint(.secondary)
+                    .padding(.bottom)
             }
             .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(.dark)
-            )
-            .padding(.horizontal)
-
-            Button("Skip for now", action: finishOnboarding)
-                .tint(.secondary)
-                .padding(.bottom)
+            .onAppear(perform: refreshStatuses)
         }
-        .padding()
-        .onAppear(perform: refreshStatuses)
+        
     }
 
     @ViewBuilder

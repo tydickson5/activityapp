@@ -13,6 +13,7 @@ struct HomeView: View {
     @EnvironmentObject var groupHandler: GroupsHandler
     @EnvironmentObject var authHandler: AuthHandler
     @EnvironmentObject var postHandler: PostsHandler
+    @EnvironmentObject var friendHandler: FriendHandler
 
     
     var body: some View {

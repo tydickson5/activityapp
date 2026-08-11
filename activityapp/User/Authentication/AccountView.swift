@@ -28,22 +28,18 @@ struct AccountView: View {
                 Section("Uploading posts"){
                     ForEach(pendingStore.pendingPosts){ result in
                         HStack{
-                            if let image = postHandler.imageURL(path: result.media_url!) {
-                                AsyncImage(url: image) { phase in
-                                    switch phase {
-                                    case .success(let img):
-                                        img
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                    case .failure:
-                                        Image(systemName: "photo")
-                                            .foregroundStyle(.gray)
-                                    default:
-                                        ProgressView()
-                                    }
-                                }
-                                .frame(width: 65, height: 100)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            if let image = pendingStore.previewImage(for: result) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 65, height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            } else {
+                                // fallback placeholder, e.g.:
+                                Image(systemName: "photo")
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 65, height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                             Spacer()
                             Button(action:{
@@ -52,6 +48,7 @@ struct AccountView: View {
                                 Image(systemName: "trash.fill")
                                     .foregroundStyle(Color.red)
                             }
+                            .buttonStyle(.borderless)
                         }
                         
                         
@@ -80,6 +77,10 @@ struct AccountView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                 }
                                 Spacer()
+                                if(post.latitude == 0){
+                                    Text(post.id)
+                                }
+                                
                             }
                             
                         })

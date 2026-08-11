@@ -31,7 +31,7 @@ struct DefaultView: View {
                 Image(systemName: "checkmark")
                     .foregroundStyle(Color.lightBlue)
             }
-            Text("Image Post")
+            Text("Camera")
             Spacer()
             Image(systemName: "chevron.right")
         }
@@ -40,19 +40,6 @@ struct DefaultView: View {
                 await authHandler.updateDefaultView(view: "image")
             }
         }
-        HStack{
-            if(authHandler.user?.user_default_view == "video"){
-                Image(systemName: "checkmark")
-                    .foregroundStyle(Color.lightBlue)
-            }
-            Text("Video Post")
-            Spacer()
-            Image(systemName: "chevron.right")
-        }
-        .onTapGesture {
-            Task{
-                await authHandler.updateDefaultView(view: "video")
-            }
-        }
+
     }
 }

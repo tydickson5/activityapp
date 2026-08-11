@@ -46,6 +46,10 @@ final class LocationHandler:
     func recenter() {
         manager.startUpdatingLocation()
     }
+    
+    func stopTracking(){
+        manager.stopUpdatingLocation()
+    }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         authorizationStatus = manager.authorizationStatus
@@ -63,4 +67,6 @@ final class LocationHandler:
         location = latest
         manager.stopUpdatingLocation()
     }
+    
+    
 }

@@ -36,15 +36,35 @@ struct PostPreviewElement: View {
                 .clipped()
                 .padding(.bottom, 10)
             
-            Toggle(isOn: $isPublicPost) {
-                Text(isPublicPost ? "Post to public" : "Post to friends")
-            }
-            .tint(.lightBlue)
+            
             
             Toggle(isOn: $saveToLibrary) {
                 Text("Save to your photo library?")
             }
             .tint(.lightBlue)
+            
+            HStack{
+                Text("Post to: ")
+                Spacer()
+                Button(action: {
+                    isPublicPost = false
+                }){
+                    Text("Friends")
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(isPublicPost ? Color.lightGray : Color.lightBlue, in: Capsule())
+                        .foregroundColor(.black)
+                }
+                Button(action: {
+                    isPublicPost = true
+                }){
+                    Text("Public")
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(isPublicPost ? Color.lightBlue : Color.lightGray, in: Capsule())
+                        .foregroundColor(.black)
+                }
+            }
             
             TextField("Write a caption...", text: $caption)
                 .padding()

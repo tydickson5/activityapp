@@ -58,5 +58,16 @@ struct NewPostView: View {
                 capturedMedia = result
             }
         }
+        .onAppear {
+            locationHandler.recenter()
+            
+            //check for location perms
+            if locationHandler.isAuthorized == false {
+                locationHandler.requestPermission()
+            }
+        }
+        .onDisappear {
+            locationHandler.stopTracking()
+        }
     }
 }

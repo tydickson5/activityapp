@@ -20,5 +20,6 @@ struct PendingPost: Codable, Identifiable {
     let public_post: Bool
     var attempts : Int = 0
     let thumbnailFilename: String?
+    let created_at: String?
     
 }

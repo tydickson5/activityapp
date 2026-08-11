@@ -99,7 +99,7 @@ final class PostsHandler: ObservableObject {
         }
     }
     
-    func createImagePost(imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async throws{
+    func createImagePost(id: String, imageURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool, created_at: String?) async throws{
         
         var isHead: Bool = true
         var state = "public"
@@ -108,13 +108,12 @@ final class PostsHandler: ObservableObject {
         }
         
         if(!isTooCloseToExistingPost(latitude: latitude, longitude: longitude)){
-            ToastManager.shared.error("Too close to an existing post")
+            //ToastManager.shared.error("Too close to an existing post")
             isHead = false
         }
         
         let postId =
-            UUID()
-            .uuidString
+            id
         
         let filepath = try await uploadImage(image: imageURL, userId: userId, postId: postId)
         
@@ -141,6 +140,7 @@ final class PostsHandler: ObservableObject {
             "longitude": longitude,
             "state": state,
             "isHead": isHead,
+            "created_at": created_at
         ]
         
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
@@ -153,7 +153,12 @@ final class PostsHandler: ObservableObject {
         
         let newPost = try JSONDecoder().decode(Post.self, from: data)
         
-        posts.append(newPost)
+        if(isPublicPost){
+            posts.append(newPost)
+        } else {
+            friendsPosts.append(newPost)
+        }
+        
         userPosts.append(newPost)
         
         ToastManager.shared.success("Posted!")
@@ -161,7 +166,7 @@ final class PostsHandler: ObservableObject {
         
     }
     
-    func createVideoPost(videoURL: URL, thumbnailURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool) async throws{
+    func createVideoPost(id:String, videoURL: URL, thumbnailURL: UIImage, userId: String, groupId: String, caption: String, latitude: Double, longitude: Double, isPublicPost: Bool, created_at: String?) async throws{
         print("posting vid")
         
         var isHead: Bool = true
@@ -171,14 +176,13 @@ final class PostsHandler: ObservableObject {
         }
         
         if(!isTooCloseToExistingPost(latitude: latitude, longitude: longitude)){
-            ToastManager.shared.error("Too close to an existing post")
+            //ToastManager.shared.error("Too close to an existing post")
             isHead = false
         }
         
         
         let postId =
-            UUID()
-            .uuidString
+            id
         
         let filepath = try await uploadImage(image: thumbnailURL, userId: userId, postId: postId)
         let filepathVideo = try await uploadVideo(videoURL: videoURL, userId: userId, postId: postId)
@@ -206,6 +210,7 @@ final class PostsHandler: ObservableObject {
             "longitude": longitude,
             "state": state,
             "isHead": isHead,
+            "created_at": created_at
         ]
         
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
@@ -218,7 +223,12 @@ final class PostsHandler: ObservableObject {
         
         let newPost = try JSONDecoder().decode(Post.self, from: data)
         
-        posts.append(newPost)
+        if(isPublicPost){
+            posts.append(newPost)
+        } else {
+            friendsPosts.append(newPost)
+        }
+        
         userPosts.append(newPost)
         
         ToastManager.shared.success("Posted!")

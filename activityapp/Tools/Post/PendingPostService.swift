@@ -51,8 +51,10 @@ final class PendingPostService: ObservableObject {
         let filename = "\(id).jpg"
         try? data.write(to: folder.appendingPathComponent(filename))
         
+        var timeStamp = getSupabaseTimestamp()
+        
         let post = PendingPost(
-            id: id, user_id: userId, group_id: groupId, caption: caption, media_url: filename, media_type: "image", latitude: latitude, longitude: longitude, public_post: isPublicPost, thumbnailFilename: nil
+            id: id, user_id: userId, group_id: groupId, caption: caption, media_url: filename, media_type: "image", latitude: latitude, longitude: longitude, public_post: isPublicPost, thumbnailFilename: nil, created_at: timeStamp
         )
         var posts = loadIndex()
         posts.append(post)
@@ -76,8 +78,10 @@ final class PendingPostService: ObservableObject {
             return nil
         }
         
+        var timeStamp = getSupabaseTimestamp()
+        
         let post = PendingPost(
-            id: id, user_id: userId, group_id: groupId, caption: caption, media_url: videoFilename, media_type: "video", latitude: latitude, longitude: longitude, public_post: isPublicPost, thumbnailFilename: thumbFilename
+            id: id, user_id: userId, group_id: groupId, caption: caption, media_url: videoFilename, media_type: "video", latitude: latitude, longitude: longitude, public_post: isPublicPost, thumbnailFilename: thumbFilename, created_at: timeStamp
         )
         var posts = loadIndex()
         posts.append(post)
@@ -112,5 +116,12 @@ final class PendingPostService: ObservableObject {
     func previewImage(for post: PendingPost) -> UIImage? {
         let filename = (post.media_type == "video" ? (post.thumbnailFilename ?? post.media_url) : post.media_url!)!
         return UIImage(contentsOfFile: fileURL(for: filename).path)
+    }
+    
+    func getSupabaseTimestamp() -> String {
+        let formatter = ISO8601DateFormatter()
+        // Supabase uses format options: year, month, day, time, and timezone
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter.string(from: Date())
     }
 }
