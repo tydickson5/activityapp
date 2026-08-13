@@ -9,7 +9,8 @@ import SwiftUI
 
 struct AccountSettingsView: View {
     
-    @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var authStore: AuthStore
+    var userService = UserService()
     
     @State var newUsername: String = ""
     
@@ -21,7 +22,7 @@ struct AccountSettingsView: View {
             Form {
                 Section("Username"){
                     HStack{
-                        Text(authHandler.user?.username ?? "")
+                        Text(authStore.user?.username ?? "")
                         
                     }
                     HStack{
@@ -31,8 +32,13 @@ struct AccountSettingsView: View {
                         Spacer()
                         Button(action: {
                             Task{
-                                await authHandler.changeUsername(newUsername: newUsername)
-                                newUsername = ""
+                                if let userId = authStore.user?.id {
+                                    await userService.changeUsername(userId: userId, newUsername: newUsername)
+                                    newUsername = ""
+                                } else {
+                                    return
+                                }
+                                
                             }
                         }){
                             Text("Update")
@@ -73,7 +79,7 @@ struct AccountSettingsView: View {
                     .alert(isPresented: $showAlert){
                         Alert(title: Text("Log out"), message: Text("Are you sure you want to log out?"), primaryButton: .destructive(Text("Log out")){
                             Task{
-                                authHandler.logout()
+                                authStore.logout()
                             }
                         }, secondaryButton: .cancel())
                     }

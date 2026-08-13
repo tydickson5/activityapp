@@ -15,9 +15,9 @@ class AppDelegate: NSObject,
     private(set) var deviceToken: String?
     var pendingPostId: String?
     
-    weak var authHandler: AuthHandler? {
+    weak var authStore: AuthStore? {
         didSet {
-            if let userId = authHandler?.user?.id, deviceToken != nil {
+            if let userId = authStore?.user?.id, deviceToken != nil {
                 uploadToken(userId: userId)
             }
         }
@@ -44,7 +44,7 @@ class AppDelegate: NSObject,
         }.joined()
         print("APNs Token:", self.deviceToken!)
 
-        if let userId = authHandler?.user?.id {
+        if let userId = authStore?.user?.id {
             uploadToken(userId: userId)
         } else {
             print("Token stored, waiting for login")

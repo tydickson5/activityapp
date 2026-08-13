@@ -17,18 +17,20 @@ struct activityappApp: App {
     let environment = AppEnvironment.live
     
     @State var showResetPassword = false
-    
-    @StateObject private var authHandler = AuthHandler()
+
+    @StateObject private var authStore = AuthStore(authService: AuthService(), userService: UserService(), userCache: UserCache(), backendService: BackendService())
     @StateObject private var groupHandler = GroupsHandler()
     @StateObject private var postHandler = PostsHandler()
     @StateObject private var locationHandler = LocationHandler()
     @StateObject private var navigationHandler = NavigationHandler()
     @StateObject private var friendHandler = FriendHandler()
     
+    private var notificationCallbackService = NotificationCallbackService()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(authHandler)
+                .environmentObject(authStore)
                 .environmentObject(groupHandler)
                 .environmentObject(postHandler)
                 .environmentObject(locationHandler)
@@ -36,30 +38,24 @@ struct activityappApp: App {
                 .environmentObject(friendHandler)
                 .environment(\.appDelegate, appDelegate)
                 .task {
-                    await authHandler.loadSession()
+                    await authStore.loadSession()
+                    authStore.appDelegate = appDelegate
+                    appDelegate.authStore = authStore
+                    
+                    
                 }
                 .toast()
-                .onAppear {
-                    appDelegate.authHandler = authHandler
-                    authHandler.appDelegate = appDelegate
-                }
                 .onOpenURL { url in
                     Task{
                         print("OPEN URL:", url.absoluteString)
                         
-                        // google/apple auth
-                        if(url.host == "auth-callback"){
-                            Task {
-                                do {
-                                    try await SupabaseHandler.client.auth.session(from: url)
-                                    print("Apple callback success")
-                                } catch {
-                                    print("Apple callback error:", error)
-                                }
-                                
-                                await authHandler.completeAuthLogin()
-                            }
-                            return
+                        switch url.host{
+                        case "auth-callback":
+                            notificationCallbackService.authCallback(url: url)
+                            break
+                        case "reset-password":
+                            
+                            break
                         }
 
                         // Password reset first

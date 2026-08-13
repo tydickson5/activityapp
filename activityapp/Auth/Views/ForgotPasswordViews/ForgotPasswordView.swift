@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct ForgotPasswordView: View {
-    @EnvironmentObject var authHandler: AuthHandler
+    
+    private var authService: AuthService = AuthService()
     @Environment(\.dismiss) var dismiss
     @State private var email = ""
 
@@ -22,8 +23,13 @@ struct ForgotPasswordView: View {
                 .autocapitalization(.none)
             Button("Send Reset Email") {
                 Task {
-                    await authHandler.sendPasswordReset(email: email)
-                    dismiss()
+                    do {
+                        try await authService.sendPasswordReset(email: email)
+                        dismiss()
+                    } catch {
+                        ToastManager.shared.error("Error")
+                    }
+                    
                 }
             }
             .buttonStyle(.borderedProminent)

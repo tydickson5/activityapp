@@ -53,21 +53,11 @@
 			);
 			target = D5EE5C0A2FAAC8FE00D49FCF /* activityappTests */;
 		};
-		D5EE5D132FBB621B00D49FCF /* Exceptions for "activityapp" folder in "activityapp" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = D5EE5BFD2FAAC8FC00D49FCF /* activityapp */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D5EE5C002FAAC8FC00D49FCF /* activityapp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D5EE5D132FBB621B00D49FCF /* Exceptions for "activityapp" folder in "activityapp" target */,
-			);
 			path = activityapp;
 			sourceTree = "<group>";
 		};

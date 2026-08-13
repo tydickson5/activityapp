@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AccountView: View {
     
-    @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var authStore: AuthStore
     @EnvironmentObject var postHandler: PostsHandler
     
     @ObservedObject var pendingStore = PendingPostService.shared
@@ -91,11 +91,19 @@ struct AccountView: View {
 
         }
         .refreshable(action: {
-            await postHandler.getUsersPosts(userId: authHandler.user!.id)
+            if let userId = authStore.user?.id{
+                await postHandler.getUsersPosts(userId: userId)
+            } else {
+                return
+            }
         })
         .onAppear{
             Task{
-                await postHandler.getUsersPosts(userId: authHandler.user!.id)
+                if let userID = authStore.user?.id{
+                    await postHandler.getUsersPosts(userId: userID)
+                } else {
+                    return
+                }
             }
             
         }

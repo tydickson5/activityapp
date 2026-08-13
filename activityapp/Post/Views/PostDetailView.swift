@@ -129,7 +129,7 @@ struct PostDetailView: View {
                 }
                 .padding(.bottom, 10)
                 
-                //comment
+                
                 //like
                 HStack{
                     HStack{
@@ -163,7 +163,8 @@ struct PostDetailView: View {
                     }
                     
                 }
-                //comments
+                
+                //comment text field
                 HStack{
                     TextField("Add a comment", text: $newComment)
                     Button(action:{
@@ -185,6 +186,8 @@ struct PostDetailView: View {
                 )
                 .padding(.bottom, 10)
                 .padding(.top, 10)
+                
+                //comments
                 VStack{
                     ForEach(comments, id: \.id) { (comment: Comment) in
                         
@@ -210,7 +213,10 @@ struct PostDetailView: View {
                 }
                 .padding(.bottom, 30)
                 
+                
+                //delete post button
                 if(post.user_id == authHandler.user!.id){
+                    
                     Button(action: {
                         presentDeleteAlert.toggle()
                     }){
