@@ -38,23 +38,6 @@
 		D5EE5C152FAAC8FE00D49FCF /* activityappUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = activityappUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D5EE5C292FAC12F500D49FCF /* Exceptions for "activityappTests" folder in "activityapp" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				ContentView.swift,
-			);
-			target = D5EE5BFD2FAAC8FC00D49FCF /* activityapp */;
-		};
-		D5EE5C2A2FAC12F500D49FCF /* Exceptions for "activityappTests" folder in "activityappTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				ContentView.swift,
-			);
-			target = D5EE5C0A2FAAC8FE00D49FCF /* activityappTests */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D5EE5C002FAAC8FC00D49FCF /* activityapp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -63,10 +46,6 @@
 		};
 		D5EE5C0E2FAAC8FE00D49FCF /* activityappTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D5EE5C292FAC12F500D49FCF /* Exceptions for "activityappTests" folder in "activityapp" target */,
-				D5EE5C2A2FAC12F500D49FCF /* Exceptions for "activityappTests" folder in "activityappTests" target */,
-			);
 			path = activityappTests;
 			sourceTree = "<group>";
 		};

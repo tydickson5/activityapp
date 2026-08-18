@@ -37,7 +37,7 @@ struct ContentView: View {
     @EnvironmentObject var postHandler: PostsHandler
     @EnvironmentObject var locationHandler: LocationHandler
     @EnvironmentObject var navigationHandler: NavigationHandler
-    @EnvironmentObject var friendHandler: FriendHandler
+    @EnvironmentObject var friendStore: FriendStore
     
     @State var userView = 0
     
@@ -72,7 +72,7 @@ struct ContentView: View {
                         .tabItem { Label("Friends",systemImage: "person")
                         }
                         .tag(2)
-                        .environmentObject(friendHandler)
+                        .environmentObject(friendStore)
                     AccountView()
                         .tabItem{
                             Label("Account", systemImage: "person.crop.circle.fill")
@@ -82,16 +82,15 @@ struct ContentView: View {
                 .tint(Color.dark)
                 .onAppear {
 
-                    
                     if let postId = appDelegate.pendingPostId {
                         processPostNotification(postId: postId)
                     }
                     Task{
-                        await friendHandler.loadFriendHandler(user: authHandler.user!)
-                        print(friendHandler.friendRequests)
+                        await friendStore.loadFriendStoreWithUser(userId: user.id)
                         
-                        await postHandler.getPosts(userId: user.id, friends: friendHandler.friends)
+                        await postHandler.getPosts(userId: user.id, friends: friendStore.friends)
                     }
+                    
                     PostUploadQueue.shared.postHandler = postHandler
                     PostUploadQueue.shared.retryAll()
                 }

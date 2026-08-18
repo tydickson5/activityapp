@@ -23,7 +23,7 @@ struct activityappApp: App {
     @StateObject private var postHandler = PostsHandler()
     @StateObject private var locationHandler = LocationHandler()
     @StateObject private var navigationHandler = NavigationHandler()
-    @StateObject private var friendHandler = FriendHandler()
+    @StateObject private var friendStore = FriendStore(friendService: FriendService(), friendRequestService: FriendRequestService(), backendService: BackendService())
     
     private var notificationCallbackService = NotificationCallbackService()
     
@@ -35,7 +35,7 @@ struct activityappApp: App {
                 .environmentObject(postHandler)
                 .environmentObject(locationHandler)
                 .environmentObject(navigationHandler)
-                .environmentObject(friendHandler)
+                .environmentObject(friendStore)
                 .environment(\.appDelegate, appDelegate)
                 .task {
                     await authStore.loadSession()

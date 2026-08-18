@@ -11,7 +11,7 @@ import MapKit
 struct HomeView: View {
     
     @EnvironmentObject var groupHandler: GroupsHandler
-    @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var authStore: AuthStore
     @EnvironmentObject var postHandler: PostsHandler
     @EnvironmentObject var friendHandler: FriendHandler
 

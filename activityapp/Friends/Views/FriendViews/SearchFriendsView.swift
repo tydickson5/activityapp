@@ -9,39 +9,31 @@ import SwiftUI
 
 struct SearchFriendsView: View {
     
-    @EnvironmentObject var friendHandler: FriendHandler
-    @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var friendStore: FriendStore
+    @EnvironmentObject var authStore: AuthStore
+    private var searchService = SearchService()
+    private var userService = UserService()
     
     @State private var searchText = ""
     @State private var users: [AppUser] = []
     @State private var searchTask: Task<Void, Never>?
     
+    @State private var user: AppUser?
+    
     var body: some View {
         
         NavigationStack {
             
-            List(users) { user in
-                if(user.id != authHandler.user!.id){
-                    HStack {
-                        Text(user.username)
-                        
-                        Spacer()
-                        
-                        if(!friendHandler.userContainsFriend(friendId: user.id)){
-                            Button {
-                                Task {
-                                    // send friend request here
-                                    await friendHandler.sendFriendRequest(userId: authHandler.user!.id, friendId: user.id, friendUsername: authHandler.user!.username)
-                                }
-                            } label: {
-                                Image(systemName: "person.badge.plus")
-                                    .foregroundStyle(Color.lightBlue)
-                            }
-                        }
-                        
-                    }
+            List(users) { searchUser in
+                if(searchUser.id != user?.id){
+                    UserSearchResult(userService: userService, user: user!, searchUser: searchUser)
                 }
-                
+            }
+            .task {
+                guard let user = authStore.user else {
+                    ToastManager.shared.error("Error loading")
+                    return
+                }
             }
             .navigationTitle("Find Friends")
             .searchable(text: $searchText)
@@ -69,7 +61,7 @@ struct SearchFriendsView: View {
                     }
                     
                     do {
-                        users = try await friendHandler.searchUsers(
+                        users = try await searchService.searchUsers(
                             query: query
                         )
                     } catch {

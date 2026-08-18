@@ -116,9 +116,9 @@ final class FriendHandler: ObservableObject {
                 try await URLSession.shared.data(
                     for: request
                 )
-            print(String(data: data, encoding: .utf8) ?? "nil")
+            //print(String(data: data, encoding: .utf8) ?? "nil")
             let friendRequest = try JSONDecoder().decode(FriendRequest.self, from: data)
-            print(friendRequest)
+            //print(friendRequest)
             
             self.friendRequests.append(friendRequest)
             
