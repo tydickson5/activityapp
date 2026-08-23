@@ -22,7 +22,7 @@ struct PermissionsOnboardView: View {
 
     var body: some View {
         if(showWelcomeOnboardView){
-            
+            //WelcomeOnboardView(showWelcomeOnboardView: $showWelcomeOnboardView)
         } else {
             VStack(spacing: 24) {
                 Spacer()
