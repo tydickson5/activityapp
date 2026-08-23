@@ -9,7 +9,7 @@ import SwiftUI
 import UserNotifications
 
 struct PermissionsOnboardView: View {
-    @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var authStore: AuthStore
     @EnvironmentObject var locationHandler: LocationHandler
     
     @State var showWelcomeOnboardView: Bool = false
@@ -131,7 +131,7 @@ struct PermissionsOnboardView: View {
     }
 
     func finishOnboarding() {
-        if let userId = authHandler.user?.id {
+        if let userId = authStore.user?.id {
             UserDefaults.standard.set(true, forKey: "hasSeenOnboarding_\(userId)")
         }
         onComplete()

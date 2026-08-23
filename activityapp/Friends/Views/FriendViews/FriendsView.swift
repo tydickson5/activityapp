@@ -10,7 +10,7 @@ import SwiftUI
 struct FriendsView: View {
     
     @EnvironmentObject var friendStore: FriendStore
-    @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var authStore: AuthStore
     var userService = UserService()
     var backendService = BackendService()
     
@@ -55,8 +55,8 @@ struct FriendsView: View {
                 
             }
             .refreshable {
-                guard let userId = authHandler.user?.id else {return}
-                await friendStore.loadFriendStoreWithUser(userId: authHandler.user!.id)
+                guard let userId = authStore.user?.id else {return}
+                await friendStore.loadFriendStoreWithUser(userId: userId)
             }
                     
             if(friendStore.isLoading){

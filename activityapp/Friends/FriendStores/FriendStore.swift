@@ -119,8 +119,8 @@ class FriendStore: ObservableObject {
                 
                 //delete friend request
                 if try await friendRequestService.deleteFriendRequest(friendRequestId: friendRequestId, backendService: backendService) {
-                    if let index = sentFriendRequests.firstIndex(where: { $0.id == friendRequestId }) {
-                        sentFriendRequests.remove(at: index)
+                    if let index = recievedFriendRequests.firstIndex(where: { $0.id == friendRequestId }) {
+                        recievedFriendRequests.remove(at: index)
                     }
                 } else {
                     ToastManager.shared.error("Error deleting friend request")
@@ -128,7 +128,7 @@ class FriendStore: ObservableObject {
                 }
                 
             case "share":
-                
+                break
             default:
                 ToastManager.shared.error("Error")
                 return

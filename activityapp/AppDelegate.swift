@@ -119,7 +119,7 @@ class AppDelegate: NSObject,
         let userInfo = response.notification.request.content.userInfo
         print("Notification tapped:", userInfo)
 
-        if let postId = userInfo["postId"] as? String {
+        if let postId = userInfo["post_id"] as? String {
             pendingPostId = postId  // store it
             NotificationCenter.default.post(
                 name: .notificationTapped,

@@ -9,11 +9,10 @@ import MapKit
 
 struct MapElement: View {
     
-    @EnvironmentObject var groupHandler: GroupsHandler
-    @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var authStore: AuthStore
     @StateObject var locationManager = LocationHandler()
-    @EnvironmentObject var postHandler: PostsHandler
-    @EnvironmentObject var friendsHandler: FriendHandler
+    @EnvironmentObject var postStore: PostStore
+    @EnvironmentObject var friendStore: FriendStore
     
     @State var publicPosts: Bool = true
     
@@ -43,7 +42,7 @@ struct MapElement: View {
     }
     
     func recomputeVisiblePosts() {
-        let source = publicPosts ? postHandler.friendsPosts : postHandler.posts
+        let source = publicPosts ? postStore.friendPosts : postStore.publicPosts
         
         var filtered = source.compactMap { post -> (Post, Bool)? in
             guard post.coordinate != nil else { return nil }
@@ -71,7 +70,7 @@ struct MapElement: View {
     
     var body: some View {
         Map(position: $position) {
-            MapContents(visiblePosts: visiblePosts, zoomLevel: zoomLevel, postHandler: postHandler)
+            MapContents(visiblePosts: visiblePosts, zoomLevel: zoomLevel, postStore: postStore)
         }
         .onMapCameraChange(frequency: .onEnd) { context in
             zoomLevel = context.region.span.latitudeDelta
@@ -91,20 +90,19 @@ struct MapElement: View {
         .onChange(of: publicPosts) { _, _ in
             recomputeVisiblePosts()
         }
-        .onChange(of: postHandler.posts) { _, _ in
+        .onChange(of: postStore.publicPosts) { _, _ in
             recomputeVisiblePosts()
         }
-        .onChange(of: friendsHandler.friends) { _, _ in
+        .onChange(of: friendStore.friends) { _, _ in
             recomputeVisiblePosts()
         }
-        .onChange(of: postHandler.friendsPosts) { _, _ in
+        .onChange(of: postStore.friendPosts) { _, _ in
             recomputeVisiblePosts()
         }
         .onAppear {
-            if(friendsHandler.friends.count == 0){
+            if(friendStore.friends.count == 0){
                 Task{
-                    await friendsHandler.loadFriends(userId: authHandler.user!.id)
-                    await postHandler.getFriendsPosts(userId: authHandler.user!.id, friends: friendsHandler.friends)
+
                     recomputeVisiblePosts()
                 }
             }

@@ -9,10 +9,9 @@ import SwiftUI
 
 struct ButtonsElement: View {
     
-    @EnvironmentObject var groupHandler: GroupsHandler
-    @EnvironmentObject var authHandler: AuthHandler
-    @EnvironmentObject var postHandler: PostsHandler
-    @EnvironmentObject var friendHandler: FriendHandler
+    @EnvironmentObject var authStore: AuthStore
+    @EnvironmentObject var postStore: PostStore
+    @EnvironmentObject var friendStore: FriendStore
     var locationManager: LocationHandler
     
     @Binding var publicPost: Bool
@@ -20,8 +19,27 @@ struct ButtonsElement: View {
     var body: some View {
         VStack(spacing: 12){
             Button(action:{
+                publicPost.toggle()
+            }){
+                HStack {
+                    Text(publicPost ? "Friends" : "Public")
+                    Image(systemName: publicPost ? "person.2.fill" : "eye")
+                }
+                .font(.caption)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color.dark.opacity(0.9))
+                .clipShape(Capsule())
+                
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            Button(action:{
                 Task{
-                    await postHandler.getPosts(userId: authHandler.user!.id, friends: friendHandler.friends)
+                    guard let userId = authStore.user?.id else {
+                        return
+                    }
+                    await postStore.loadPosts(userId: userId, friends: friendStore.friends)
                 }
             }){
                 Image(systemName: "arrow.clockwise")
@@ -43,17 +61,7 @@ struct ButtonsElement: View {
                     .clipShape(Circle())
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
-            Button(action:{
-                publicPost.toggle()
-            }){
-                Image(systemName: publicPost ? "person.2.fill" : "eye")
-                    .frame(width: 15, height: 15)
-                    .foregroundStyle(Color.white)
-                    .padding()
-                    .background(Color.dark.opacity(0.9))
-                    .clipShape(Circle())
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            
             Spacer()
             
         }

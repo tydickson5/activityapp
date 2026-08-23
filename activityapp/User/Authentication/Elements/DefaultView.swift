@@ -9,11 +9,12 @@ import SwiftUI
 
 struct DefaultView: View {
     
-    @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var authStore: AuthStore
+    var userService = UserService()
     
     var body: some View{
         HStack{
-            if(authHandler.user?.user_default_view == "home"){
+            if(authStore.user?.user_default_view == "home"){
                 Image(systemName: "checkmark")
                     .foregroundStyle(Color.lightBlue)
             }
@@ -23,11 +24,18 @@ struct DefaultView: View {
         }
         .onTapGesture {
             Task{
-                await authHandler.updateDefaultView(view: "home")
+                do {
+                    guard let user = authStore.user else {
+                        return
+                    }
+                    try await  userService.changeDefaultView(userId: user.id, newView: "home")
+                    authStore.user?.user_default_view = "home"
+                }
+
             }
         }
         HStack{
-            if(authHandler.user?.user_default_view == "image"){
+            if(authStore.user?.user_default_view == "image"){
                 Image(systemName: "checkmark")
                     .foregroundStyle(Color.lightBlue)
             }
@@ -37,7 +45,14 @@ struct DefaultView: View {
         }
         .onTapGesture {
             Task{
-                await authHandler.updateDefaultView(view: "image")
+
+                do {
+                    guard let user = authStore.user else {
+                        return
+                    }
+                    try await  userService.changeDefaultView(userId: user.id, newView: "image")
+                    authStore.user?.user_default_view = "image"
+                }
             }
         }
 

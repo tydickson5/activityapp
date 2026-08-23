@@ -9,21 +9,18 @@ import SwiftUI
 
 struct AccountPostListElement: View{
     
-    @EnvironmentObject var authHandler: AuthHandler
-    @EnvironmentObject var postHandler: PostsHandler
+    @EnvironmentObject var authStore: AuthStore
+    @EnvironmentObject var postStore: PostStore
 
     
     @State var usersPosts: [Post] = []
     
     var body: some View{
         
-        ForEach(postHandler.userPosts, id: \.id){ (post: Post) in
+        ForEach(postStore.userPosts, id: \.id){ (post: Post) in
             AccountPostElement(post: post)
         }
-        .task {
-            await postHandler.getUsersPosts(userId: authHandler.user!.id)
-            print(usersPosts.count)
-        }
+
         
     }
 }

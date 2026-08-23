@@ -11,7 +11,7 @@ import MapKit
 struct MapContents: MapContent {
     let visiblePosts: [(post: Post, isRecent: Bool)]
     let zoomLevel: Double
-    let postHandler: PostsHandler
+    let postStore: PostStore
     
     var body: some MapContent {
         ForEach(visiblePosts, id: \.post.id) { entry in
@@ -19,7 +19,7 @@ struct MapContents: MapContent {
             let showDetail = zoomLevel < 0.30 || entry.isRecent
             
             Annotation("", coordinate: post.coordinate!) {
-                PostMapAnnotation(post: post, isRecent: entry.isRecent, showDetail: showDetail, postHandler: postHandler)
+                PostMapAnnotation(post: post, isRecent: entry.isRecent, showDetail: showDetail, postStore: postStore)
             }
             
             if showDetail {

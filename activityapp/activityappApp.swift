@@ -19,8 +19,7 @@ struct activityappApp: App {
     @State var showResetPassword = false
 
     @StateObject private var authStore = AuthStore(authService: AuthService(), userService: UserService(), userCache: UserCache(), backendService: BackendService())
-    @StateObject private var groupHandler = GroupsHandler()
-    @StateObject private var postHandler = PostsHandler()
+    @StateObject private var postStore = PostStore(uploadPostService: UploadPostService(), retrievePostService: RetrievePostService(), backendService: BackendService())
     @StateObject private var locationHandler = LocationHandler()
     @StateObject private var navigationHandler = NavigationHandler()
     @StateObject private var friendStore = FriendStore(friendService: FriendService(), friendRequestService: FriendRequestService(), backendService: BackendService())
@@ -31,8 +30,7 @@ struct activityappApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(authStore)
-                .environmentObject(groupHandler)
-                .environmentObject(postHandler)
+                .environmentObject(postStore)
                 .environmentObject(locationHandler)
                 .environmentObject(navigationHandler)
                 .environmentObject(friendStore)
@@ -51,14 +49,29 @@ struct activityappApp: App {
                         
                         switch url.host{
                         case "auth-callback":
-                            notificationCallbackService.authCallback(url: url)
+                            do {
+                                try await notificationCallbackService.authCallback(url: url)
+                                
+                            } catch {
+                                ToastManager.shared.error("Error")
+                            }
                             break
                         case "reset-password":
-                            
+                            do {
+                                try await SupabaseHandler.client.auth.session(from: url)
+
+                                await MainActor.run {
+                                    showResetPassword = true
+                                }
+                            } catch {
+                                print(error)
+                            }
                             break
+                        default:
+                            return
                         }
 
-                        // Password reset first
+                        /*Password reset first
                         if url.host == "reset-password" ||
                            url.absoluteString.contains("type=recovery") {
 
@@ -76,42 +89,24 @@ struct activityappApp: App {
 
                             return
                         }
+                         */
                         var waited = 0
-                        while authHandler.isLoading && waited < 50 {
+                        while authStore.isLoading && waited < 50 {
                             try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
                             waited += 1
                         }
 
                         // Group invite logic second
-                        guard authHandler.isAuthenticated else {
+                        guard authStore.isAuthenticated else {
                             ToastManager.shared.error("You are not logged in")
                             return
                         }
-
-
-                        let parts = url.pathComponents
-
-                        guard parts.count >= 3 else { return }
-                        guard parts[1] == "group" else { return }
-
-                        let groupId = parts[2]
-
-                        if let groupId = await groupHandler.joinGroup(
-                            userId: authHandler.user!.id,
-                            groupId: groupId
-                        ){
-                            authHandler.user?.selected_group = groupId
-                            
-                            await postHandler.getPosts(userId: authHandler.user!.id, friends: friendHandler.friends)
-                        }
-                        
-                        
                     }
                     
                 }
                 .sheet(isPresented: $showResetPassword) {
                     ResetPasswordView(isPresented: $showResetPassword)
-                        .environmentObject(authHandler)
+                        .environmentObject(authStore)
                 }
         }
     }

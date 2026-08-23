@@ -14,13 +14,13 @@ struct PostMapAnnotation: View {
     let isRecent: Bool
     let showDetail: Bool
     
-    let postHandler: PostsHandler
+    let postStore: PostStore
     
     var body: some View {
         if showDetail {
             PostElement(post: post, type: isRecent)
                 .id(post.id)
-                .environmentObject(postHandler)
+                .environmentObject(postStore)
         } else {
             Image(systemName: "mappin")
                 .font(.title)

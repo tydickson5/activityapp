@@ -9,28 +9,18 @@ import SwiftUI
 
 struct OtherUserView: View {
     
-    @EnvironmentObject var authHandler: AuthHandler
-    @EnvironmentObject var friendHandler: FriendHandler
-    @EnvironmentObject var postHandler: PostsHandler
+    @EnvironmentObject var authStore: AuthStore
+    @EnvironmentObject var friendStore: FriendStore
+    @EnvironmentObject var postStore: PostStore
+    var retrievePostService = RetrievePostService()
+    var friendService = FriendService()
+    var friendRequestService = FriendRequestService()
+    
+    var dateFormatterService = DateFormatterService()
     
     @State var userPosts: [Post] = []
     
     @State var user: AppUser
-    
-    func formattedDate(_ isoString: String) -> String {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
-        guard let date = formatter.date(from: isoString) else {
-            return isoString
-        }
-
-        let output = DateFormatter()
-        output.dateStyle = .medium
-        output.timeStyle = .short
-
-        return output.string(from: date)
-    }
     
     var body: some View {
         ScrollView{
@@ -46,22 +36,24 @@ struct OtherUserView: View {
                 
                 //friend request
                 //check if friend/request exists already
-                if(user.id == authHandler.user!.id){
+                if(user.id == authStore.user?.id){
                     Text("Your profile")
                 }
-                else if(friendHandler.userIsFriend(friendId: user.id)){
+                else if(friendService.isFriend(friendId: user.id, friends: friendStore.friends)){
                     Text("You are friends!")
                         .padding(.bottom, 10)
-                } else if(friendHandler.requestSent(userId: authHandler.user!.id)) {
+                } else if(friendRequestService.friendRequestSent(friendId: user.id, sentFriendRequests: friendStore.sentFriendRequests)) {
                     Text("Request sent!")
                         .padding(.bottom, 10)
-                } else if(friendHandler.requestRecieved(friendId: user.id)){
+                } else if(friendRequestService.friendRequestRecieved(friendId: user.id, recievedFriendRequests: friendStore.recievedFriendRequests)){
                     Text("Check you inbox!")
                         .padding(.bottom, 10)
                 } else {
                     Button{
                         Task{
-                            await friendHandler.sendFriendRequest(userId: authHandler.user!.id, friendId: user.id, friendUsername: authHandler.user!.username)
+                            guard let u = authStore.user else {return}
+                            await friendStore.sendFriendRequest(userId: u.id, friendId: user.id, friendUsername: u.username)
+
                         }
                         
                     } label: {
@@ -77,7 +69,7 @@ struct OtherUserView: View {
                     NavigationLink(destination: PostDetailView(post: post), label: {
                         
                         HStack{
-                            if let image = postHandler.imageURL(path: post.media_url!) {
+                            if let image = retrievePostService.imageURL(path: post.media_url!) {
                                 AsyncImage(url: image) { phase in
                                     switch phase {
                                     case .success(let img):
@@ -102,7 +94,7 @@ struct OtherUserView: View {
 
                                 Spacer()
                                 HStack{
-                                    Text(formattedDate(post.created_at))
+                                    Text(dateFormatterService.formattedDate(post.created_at))
                                         .font(.footnote)
                                     Spacer()
                                     Image(systemName: "chevron.right")
@@ -128,12 +120,17 @@ struct OtherUserView: View {
         }
         .refreshable {
             //reload posts
-            userPosts = await postHandler.getOtherUsersPosts(userId: user.id)!
+            Task {
+                let userId = user.id
+                userPosts = await retrievePostService.getUsersPosts(userId: userId)
+            }
+            
         }
         .onAppear{
             //load posts
             Task{
-                userPosts = await postHandler.getOtherUsersPosts(userId: user.id)!
+                let userId = user.id
+                userPosts = await retrievePostService.getUsersPosts(userId: userId)
             }
             
             

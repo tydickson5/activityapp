@@ -13,6 +13,7 @@ struct ContentView: View {
     @Environment(\.appEnvironment) var env
     @Environment(\.appDelegate) var appDelegate
     
+    var retrievePostService = RetrievePostService()
     
     var client: SupabaseClient {
         SupabaseClient(
@@ -22,19 +23,25 @@ struct ContentView: View {
     }
     
     func processPostNotification(postId: String) {
+        print("🔥 Processing:", postId)
+
         Task {
-            if let post = await postHandler.getPost(postId: postId) {
+            if let post = await retrievePostService.getPost(postId: postId) {
+                print("🔥 Found post:", post.id)
+
                 await MainActor.run {
                     navigationHandler.selectedPost = post
                     appDelegate.pendingPostId = nil
                 }
+            } else {
+                print("🔥 Failed to load post")
             }
         }
     }
     
-    @EnvironmentObject var authHandler: AuthHandler
+    @EnvironmentObject var authStore: AuthStore
     @EnvironmentObject var groupHandler: GroupsHandler
-    @EnvironmentObject var postHandler: PostsHandler
+    @EnvironmentObject var postStore: PostStore
     @EnvironmentObject var locationHandler: LocationHandler
     @EnvironmentObject var navigationHandler: NavigationHandler
     @EnvironmentObject var friendStore: FriendStore
@@ -44,28 +51,26 @@ struct ContentView: View {
     var body: some View {
         
         
-        if authHandler.isAuthenticated, let user = authHandler.user{
-            if(authHandler.needsOnboarding){
+        if authStore.isAuthenticated, let user = authStore.user{
+            if(authStore.needsOnboarding){
                 PermissionsOnboardView(onComplete: {
-                        authHandler.needsOnboarding = false
+                    authStore.needsOnboarding = false
                     })
-                    .environmentObject(authHandler)
+                    .environmentObject(authStore)
                     .environmentObject(locationHandler)
             } else {
                 TabView(selection: $userView){
                     HomeView().id(1)
                         .tabItem { Label("Map", systemImage: "map.fill") }
                         .tag(0)
-                        .environmentObject(groupHandler)
 
                     
                     NewPostView()
                         .tabItem { Label("Posts",
                             systemImage: "plus")}
                         .tag(1)
-                        .environmentObject(groupHandler)
-                        .environmentObject(postHandler)
-                        .environmentObject(authHandler)
+                        .environmentObject(postStore)
+                        .environmentObject(authStore)
                         .environmentObject(locationHandler)
 
                     FriendsView()
@@ -88,13 +93,14 @@ struct ContentView: View {
                     Task{
                         await friendStore.loadFriendStoreWithUser(userId: user.id)
                         
-                        await postHandler.getPosts(userId: user.id, friends: friendStore.friends)
+                        await postStore.loadPosts(userId: user.id, friends: friendStore.friends)
+
                     }
                     
-                    PostUploadQueue.shared.postHandler = postHandler
+                    PostUploadQueue.shared.postStore = postStore
                     PostUploadQueue.shared.retryAll()
                 }
-                .onChange(of: authHandler.isAuthenticated) { _, authenticated in
+                .onChange(of: authStore.isAuthenticated) { _, authenticated in
                     guard authenticated else { return }
 
                     if let postId = appDelegate.pendingPostId {
@@ -103,9 +109,15 @@ struct ContentView: View {
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .notificationTapped)) { notification in
                     print("🔥 Received notificationTapped")
+                    print(notification.userInfo ?? [:])
 
-                    if let postId = notification.userInfo?["postId"] as? String {
-                        print("🔥 Post ID:", postId)
+                    let postId =
+                        notification.userInfo?["postId"] as? String ??
+                        notification.userInfo?["post_id"] as? String
+
+                    print("🔥 Extracted postId:", postId ?? "nil")
+
+                    if let postId {
                         processPostNotification(postId: postId)
                     }
                 }
@@ -113,7 +125,7 @@ struct ContentView: View {
                     PostDetailView(post: post)
                 }
                 .task {
-                    if(authHandler.user!.user_default_view == "home"){
+                    if(authStore.user!.user_default_view == "home"){
                         userView = 0
                     } else {
                         userView = 1
@@ -124,11 +136,11 @@ struct ContentView: View {
 
         }
         else{
-            if(authHandler.isLoading){
+            if(authStore.isLoading){
                 Text("Loading...")
                     .padding(.bottom, 5)
                 Button(action:{
-                    authHandler.logout()
+                    authStore.logOut()
                 }){
                     HStack{
                         Image(systemName: "arrow.left")

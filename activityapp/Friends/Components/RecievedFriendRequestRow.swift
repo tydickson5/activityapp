@@ -41,10 +41,8 @@ struct RecievedFriendRequestRow: View {
                         guard let userId = authStore.user?.id else {
                             return
                         }
-                        guard let friendUsername = user?.username else {
-                            return
-                        }
-                        await friendStore.acceptFriendRequest(type: "search", friendId: request.friend_id, userId: userId, friendUsername: friendUsername, friendRequestId: request.id)
+                        
+                        await friendStore.acceptFriendRequest(type: "search", friendId: request.user_id, userId: userId, friendUsername: request.friend_username, friendRequestId: request.id)
                     }
                 }){
                     Image(systemName: "checkmark")
@@ -68,7 +66,7 @@ struct RecievedFriendRequestRow: View {
         }
         .task {
             do {
-                user = try await userService.getProfile(userId: request.friend_id)
+                user = try await userService.getProfile(userId: request.user_id)
             } catch {
                 ToastManager.shared.error("Error loading reqeust")
             }

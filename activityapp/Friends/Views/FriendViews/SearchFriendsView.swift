@@ -25,9 +25,16 @@ struct SearchFriendsView: View {
         NavigationStack {
             
             List(users) { searchUser in
-                if(searchUser.id != user?.id){
-                    UserSearchResult(userService: userService, user: user!, searchUser: searchUser)
+                if let user = authStore.user {
+                    if(searchUser.id != user.id){
+                        UserSearchResult(
+                            userService: userService,
+                            user: user,
+                            searchUser: searchUser
+                        )
+                    }
                 }
+                
             }
             .task {
                 guard let user = authStore.user else {

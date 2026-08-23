@@ -33,8 +33,16 @@ struct AccountSettingsView: View {
                         Button(action: {
                             Task{
                                 if let userId = authStore.user?.id {
-                                    await userService.changeUsername(userId: userId, newUsername: newUsername)
-                                    newUsername = ""
+                                    do {
+                                        try await userService.changeUsername(userId: userId, newUsername: newUsername)
+                                        authStore.updateUsername(newUsername: newUsername)
+                                        newUsername = ""
+                                        
+                                    } catch {
+                                        ToastManager.shared.error("Error updating username")
+                                        return
+                                    }
+                                    
                                 } else {
                                     return
                                 }
@@ -79,7 +87,7 @@ struct AccountSettingsView: View {
                     .alert(isPresented: $showAlert){
                         Alert(title: Text("Log out"), message: Text("Are you sure you want to log out?"), primaryButton: .destructive(Text("Log out")){
                             Task{
-                                authStore.logout()
+                                authStore.logOut()
                             }
                         }, secondaryButton: .cancel())
                     }

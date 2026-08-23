@@ -139,4 +139,7 @@ class AuthStore: ObservableObject {
         }
     }
     
+    func updateUsername(newUsername: String) {
+        user?.username = newUsername
+    }
 }

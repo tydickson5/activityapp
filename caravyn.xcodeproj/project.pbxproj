@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D55CD17E30370FF100AA43B3 /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = D55CD17D30370FF100AA43B3 /* Nuke */; };
+		D55CD18030370FF100AA43B3 /* NukeExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = D55CD17F30370FF100AA43B3 /* NukeExtensions */; };
+		D55CD18230370FF100AA43B3 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = D55CD18130370FF100AA43B3 /* NukeUI */; };
+		D55CD18430370FF100AA43B3 /* NukeVideo in Frameworks */ = {isa = PBXBuildFile; productRef = D55CD18330370FF100AA43B3 /* NukeVideo */; };
 		D5EE5C322FAC183F00D49FCF /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = D5EE5C312FAC183F00D49FCF /* Auth */; };
 		D5EE5C342FAC183F00D49FCF /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = D5EE5C332FAC183F00D49FCF /* Functions */; };
 		D5EE5C362FAC183F00D49FCF /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = D5EE5C352FAC183F00D49FCF /* PostgREST */; };
@@ -38,9 +42,22 @@
 		D5EE5C152FAAC8FE00D49FCF /* activityappUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = activityappUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D55CD193303869D500AA43B3 /* Exceptions for "activityapp" folder in "activityapp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D5EE5BFD2FAAC8FC00D49FCF /* activityapp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D5EE5C002FAAC8FC00D49FCF /* activityapp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D55CD193303869D500AA43B3 /* Exceptions for "activityapp" folder in "activityapp" target */,
+			);
 			path = activityapp;
 			sourceTree = "<group>";
 		};
@@ -67,9 +84,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5EE5C362FAC183F00D49FCF /* PostgREST in Frameworks */,
+				D55CD18030370FF100AA43B3 /* NukeExtensions in Frameworks */,
 				D5EE5C342FAC183F00D49FCF /* Functions in Frameworks */,
+				D55CD17E30370FF100AA43B3 /* Nuke in Frameworks */,
 				D5EE5C3C2FAC183F00D49FCF /* Supabase in Frameworks */,
 				D5EE5C322FAC183F00D49FCF /* Auth in Frameworks */,
+				D55CD18230370FF100AA43B3 /* NukeUI in Frameworks */,
+				D55CD18430370FF100AA43B3 /* NukeVideo in Frameworks */,
 				D5EE5C3A2FAC183F00D49FCF /* Storage in Frameworks */,
 				D5EE5C382FAC183F00D49FCF /* Realtime in Frameworks */,
 			);
@@ -148,6 +169,10 @@
 				D5EE5C372FAC183F00D49FCF /* Realtime */,
 				D5EE5C392FAC183F00D49FCF /* Storage */,
 				D5EE5C3B2FAC183F00D49FCF /* Supabase */,
+				D55CD17D30370FF100AA43B3 /* Nuke */,
+				D55CD17F30370FF100AA43B3 /* NukeExtensions */,
+				D55CD18130370FF100AA43B3 /* NukeUI */,
+				D55CD18330370FF100AA43B3 /* NukeVideo */,
 			);
 			productName = activityapp;
 			productReference = D5EE5BFE2FAAC8FC00D49FCF /* activityapp.app */;
@@ -233,6 +258,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D5EE5C282FAC105700D49FCF /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				D55CD1793036FF9600AA43B3 /* XCRemoteSwiftPackageReference "Nuke" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D5EE5BFF2FAAC8FC00D49FCF /* Products */;
@@ -641,6 +667,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		D55CD1793036FF9600AA43B3 /* XCRemoteSwiftPackageReference "Nuke" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kean/Nuke";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.2.0;
+			};
+		};
 		D5EE5C282FAC105700D49FCF /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase-community/supabase-swift.git";
@@ -652,6 +686,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		D55CD17D30370FF100AA43B3 /* Nuke */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D55CD1793036FF9600AA43B3 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = Nuke;
+		};
+		D55CD17F30370FF100AA43B3 /* NukeExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D55CD1793036FF9600AA43B3 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeExtensions;
+		};
+		D55CD18130370FF100AA43B3 /* NukeUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D55CD1793036FF9600AA43B3 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeUI;
+		};
+		D55CD18330370FF100AA43B3 /* NukeVideo */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D55CD1793036FF9600AA43B3 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeVideo;
+		};
 		D5EE5C312FAC183F00D49FCF /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D5EE5C282FAC105700D49FCF /* XCRemoteSwiftPackageReference "supabase-swift" */;

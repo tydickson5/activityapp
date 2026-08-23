@@ -10,7 +10,8 @@ import SwiftUI
 struct AccountView: View {
     
     @EnvironmentObject var authStore: AuthStore
-    @EnvironmentObject var postHandler: PostsHandler
+    @EnvironmentObject var postStore: PostStore
+    var retrievePostService = RetrievePostService()
     
     @ObservedObject var pendingStore = PendingPostService.shared
     
@@ -55,11 +56,11 @@ struct AccountView: View {
                     }
                 }
                 Section("My Posts"){
-                    ForEach(postHandler.userPosts){ post in
+                    ForEach(postStore.userPosts){ post in
                         NavigationLink(destination: PostDetailView(post: post), label: {
                             
                             HStack{
-                                if let image = postHandler.imageURL(path: post.media_url!) {
+                                if let image = retrievePostService.imageURL(path: post.media_url!) {
                                     AsyncImage(url: image) { phase in
                                         switch phase {
                                         case .success(let img):
@@ -92,15 +93,15 @@ struct AccountView: View {
         }
         .refreshable(action: {
             if let userId = authStore.user?.id{
-                await postHandler.getUsersPosts(userId: userId)
+                await postStore.loadUserPosts(userId: userId)
             } else {
                 return
             }
         })
         .onAppear{
             Task{
-                if let userID = authStore.user?.id{
-                    await postHandler.getUsersPosts(userId: userID)
+                if let userId = authStore.user?.id{
+                    await postStore.loadUserPosts(userId: userId)
                 } else {
                     return
                 }
