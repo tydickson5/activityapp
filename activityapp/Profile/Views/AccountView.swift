@@ -26,6 +26,9 @@ struct AccountView: View {
                         Label("Settings", systemImage: "gear.fill")
                     }
                 }
+                Section {
+                    StartTripButton()
+                }
                 Section("Uploading posts"){
                     ForEach(pendingStore.pendingPosts){ result in
                         HStack{
