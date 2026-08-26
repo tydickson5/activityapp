@@ -73,6 +73,39 @@ struct TripService {
         
     }
     
+    func updateTripDetails(tripId: String, name: String, description: String, created_at: String, ended_at: String, backendService: BackendService) async -> Bool {
+        
+        let body: [String: Any] = [
+            "tripId": tripId,
+            "name": name,
+            "description": description,
+            "created_at": created_at,
+            "ended_at": ended_at
+        ]
+        
+        do {
+            guard let request = try await backendService.loadHttpRequest(path: "trips/update", body: body) else {
+                ToastManager.shared.error("Error updating trip")
+                return false
+            }
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+                
+                throw NSError(domain: "updateTrip", code: (response as? HTTPURLResponse)?.statusCode ?? -1)
+            }
+            
+            let newTrip = try JSONDecoder().decode(Trip.self, from: data)
+            
+            ToastManager.shared.success("Updated")
+            return true
+        } catch {
+            ToastManager.shared.success("Error updating trip")
+            return false
+        }
+    }
+    
     func getTripById(tripId: String) async -> Trip? {
         
         do {

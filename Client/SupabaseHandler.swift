@@ -11,7 +11,7 @@ import Foundation
 enum SupabaseHandler
 {
     
-    static let ipAddress: String =  "192.168.1.85"
+    static let ipAddress: String =  "192.168.68.63"
     
     static let localBackendURL: String = "http://\(ipAddress):3000"
     

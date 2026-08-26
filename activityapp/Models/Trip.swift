@@ -5,7 +5,7 @@
 //  Created by Ty Dickson on 8/24/26.
 //
 
-struct Trip: Decodable {
+struct Trip: Decodable, Identifiable {
     var id: String
     var user_id: String
     var name: String

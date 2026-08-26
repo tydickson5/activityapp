@@ -28,36 +28,44 @@ struct AccountView: View {
                 }
                 Section {
                     StartTripButton()
-                }
-                Section("Uploading posts"){
-                    ForEach(pendingStore.pendingPosts){ result in
-                        HStack{
-                            if let image = pendingStore.previewImage(for: result) {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 65, height: 100)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            } else {
-                                // fallback placeholder, e.g.:
-                                Image(systemName: "photo")
-                                    .foregroundStyle(.secondary)
-                                    .frame(width: 65, height: 100)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                            Spacer()
-                            Button(action:{
-                                pendingStore.remove(result)
-                            }){
-                                Image(systemName: "trash.fill")
-                                    .foregroundStyle(Color.red)
-                            }
-                            .buttonStyle(.borderless)
-                        }
-                        
-                        
+                    NavigationLink {
+                        TripsView()
+                    } label: {
+                        Label("Trips", systemImage: "person")
                     }
                 }
+                if(!pendingStore.pendingPosts.isEmpty){
+                    Section("Uploading posts"){
+                        ForEach(pendingStore.pendingPosts){ result in
+                            HStack{
+                                if let image = pendingStore.previewImage(for: result) {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 65, height: 100)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                } else {
+                                    // fallback placeholder, e.g.:
+                                    Image(systemName: "photo")
+                                        .foregroundStyle(.secondary)
+                                        .frame(width: 65, height: 100)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
+                                Spacer()
+                                Button(action:{
+                                    pendingStore.remove(result)
+                                }){
+                                    Image(systemName: "trash.fill")
+                                        .foregroundStyle(Color.red)
+                                }
+                                .buttonStyle(.borderless)
+                            }
+                            
+                            
+                        }
+                    }
+                }
+                
                 Section("My Posts"){
                     ForEach(postStore.userPosts){ post in
                         NavigationLink(destination: PostDetailView(post: post), label: {
