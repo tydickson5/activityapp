@@ -27,7 +27,7 @@ struct EditTripView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
-                VStack {
+                VStack(alignment: .leading) {
                     Text("Trip Name")
                         .font(.footnote)
                     TextField("Trip name", text: $name)
@@ -38,7 +38,7 @@ struct EditTripView: View {
                         )
                 }
                 
-                VStack{
+                VStack(alignment: .leading){
                     Text("Description")
                         .font(.footnote)
                         

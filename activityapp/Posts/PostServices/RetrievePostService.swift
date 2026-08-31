@@ -108,4 +108,22 @@ struct RetrievePostService {
             return []
         }
     }
+    
+    //loading for user with lazy load
+    func loadUsersPostsPerPage(userId: String, cursor: String?, limit: Int = 20) async -> [Post] {
+        do {
+            var query = SupabaseHandler.client.from("posts").select("*").eq("user_id", value: userId)
+            
+            if let cursor {
+                query = query.lt("created_at", value: cursor)
+            }
+            
+            let fetched: [Post] = try await query.order("created_at", ascending: false).limit(limit).execute().value
+            
+            return fetched
+        } catch {
+            print(error)
+            return []
+        }
+    }
 }

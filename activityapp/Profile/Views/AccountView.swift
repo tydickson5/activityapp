@@ -31,7 +31,7 @@ struct AccountView: View {
                     NavigationLink {
                         TripsView()
                     } label: {
-                        Label("Trips", systemImage: "person")
+                        Label("Trips", systemImage: "plane.path.dotted")
                     }
                 }
                 if(!pendingStore.pendingPosts.isEmpty){

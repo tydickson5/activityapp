@@ -26,5 +26,7 @@ struct EndTripButton: View {
             Image(systemName: "stop.circle.fill")
                 .tint(.red)
         }
+        .buttonStyle(.borderless)
+        .padding(.leading, 10)
     }
 }

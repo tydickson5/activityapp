@@ -22,25 +22,27 @@ struct CreateTripView: View {
     var body: some View {
         
         NavigationStack {
-            VStack {
+            VStack(spacing: 20) {
                 
-                TextField("Trip name", text: $name)
-                    .padding()
-                    .padding(.bottom, 20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.dark.opacity(0.5), lineWidth: 2)
-                    )
-                
-                TextEditor(text: $description)
-                    .frame(height: 150)
-                    .padding()
-                    .padding(.bottom, 20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.dark.opacity(0.5), lineWidth: 2)
-                    )
-                
+                VStack(alignment: .leading){
+                    TextField("Trip name", text: $name)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.dark.opacity(0.5), lineWidth: 2)
+                        )
+                }
+                VStack(alignment: .leading){
+                    Text("Description")
+                        .font(.footnote)
+                    TextEditor(text: $description)
+                        .frame(height: 150)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.dark.opacity(0.5), lineWidth: 2)
+                        )
+                }
                 Button(action: {
                     isSubmitLoading = true
                     defer {isSubmitLoading = false}
