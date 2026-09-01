@@ -1,24 +1,10 @@
-# Activity App
+# Caravyn App
 
-## Concept
-Users will be able to press a single button to send out an activity notification for that they are doing. Friends will then be able to to click the 
-message and join the activity. \
-\
-Example:\
-User 1 clicks Gym\
-User 2 recieves "User 1 is going to the gym in ____ minutes! Click to Join!\
-User 2 clicks\
-Item now says User 1 and User 2 are going to the gym
+## Overview
+An app to allow people to post their trips. The goal is for people to be able to find places that they usually wouldn't through Caravyn's image map. Posts can be made out to friends or to everyone on the app. 
 
-## Stack (tentative)
-Frontend\
--Swift UI
+## Beta testing
+To beta test please reach out to tydickson255@gmail.com. I value any input that can be given.
 
-Backend server\
--NodeJS\
--NEST
-
-Framewords\
--Supabase\
--RevenueCat\
--Firebase messaging service
+## Notes
+Used minimal AI.
